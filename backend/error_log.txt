@@ -1,0 +1,75 @@
+[12-Apr-2025 17:41:03 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:04 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:04 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:04 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:05 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:05 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:05 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:05 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:06 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[12-Apr-2025 17:41:07 Europe/Berlin] PHP Fatal error:  Uncaught ArgumentCountError: The number of elements in the type definition string must match the number of bind variables in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:70
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(70): mysqli_stmt->bind_param('sssssssssssssss...', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '2025-04-12')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 70
+[14-Apr-2025 12:25:31 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'relationship' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:87
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(87): mysqli->prepare('INSERT INTO pre...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 87
+[14-Apr-2025 12:28:19 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'relationship' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:87
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(87): mysqli->prepare('INSERT INTO pre...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 87
+[14-Apr-2025 13:03:58 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'relationship' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:87
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(87): mysqli->prepare('INSERT INTO pre...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 87
+[14-Apr-2025 13:27:18 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'relationship' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:87
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(87): mysqli->prepare('INSERT INTO pre...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 87
+[14-Apr-2025 13:27:44 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'relationship' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php:87
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php(87): mysqli->prepare('INSERT INTO pre...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\save_enrollment.php on line 87
