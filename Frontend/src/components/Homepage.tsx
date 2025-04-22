@@ -41,7 +41,7 @@ const Homepage = () => {
                         SY. 2024-2025.
                     </p>
                     <div className="flex flex-col items-center gap-6 mb-16">
-                        <Link href="/login">
+                        <Link href="/Login">
                             <button className="w-full py-3 px-6 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-500 transition duration-300 ease-in-out transform hover:scale-105">
                                 Login
                             </button>

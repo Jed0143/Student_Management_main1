@@ -1,237 +1,211 @@
 "use client";
-import React, { ReactNode, useEffect, useState } from "react";
-import Sidebar from "@/components/Sidebar";
+
+import React, { useEffect, useState } from "react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Checkbox,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
+import axios from "axios";
 
 interface Student {
-  child_name: ReactNode;
   id: number;
   name: string;
-  present: boolean;
-  note: string;
   schedule: string;
-  attendanceHistory: { date: string; present: boolean; note: string }[];
+  status?: string;
+  note?: string;
 }
 
-const AttendanceManager = () => {
-  const [students, setStudents] = useState<Student[]>([]);
-  const [selectedSchedule, setSelectedSchedule] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
-  const [showModal, setShowModal] = useState(false);
-  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+interface AttendanceRecord {
+  student_id: number;
+  status: string;
+  note: string;
+  date: string;
+}
 
-  // ✅ Fetch students on load
+const AttendanceManager: React.FC = () => {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [attendanceData, setAttendanceData] = useState<{ [key: number]: { status: string; note: string } }>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [attendanceHistory, setAttendanceHistory] = useState<AttendanceRecord[]>([]);
+  const [enrollees, setEnrollees] = useState<any[]>([]); // for child_name
+
   useEffect(() => {
-    fetch("http://localhost/Student_Management_main1/backend/get_student.php")
-      .then((res) => res.json())
-      .then((data) => {
-        const studentsWithDefaults = data.students.map((student: any) => ({
-          ...student,
-          present: false,
-          note: "",
-          attendanceHistory: [],
-        }));
-        setStudents(studentsWithDefaults);
-      })
-      .catch((err) => console.error("Error fetching students:", err));
+    fetchStudents();
+    fetchEnrollees();
   }, []);
 
-  const toggleAttendance = (studentId: number, note: string) => {
-    setStudents((prev) =>
-      prev.map((student) =>
-        student.id === studentId
-          ? {
-              ...student,
-              present: !student.present,
-              attendanceHistory: [
-                ...student.attendanceHistory,
-                { date: selectedDate, present: !student.present, note },
-              ],
-            }
-          : student
-      )
-    );
+  const fetchStudents = async () => {
+    try {
+      const response = await axios.get("http://localhost/Student_Management_main1/backend/get_student.php");
+      setStudents(response.data);
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
   };
 
-  const handleNoteChange = (studentId: number, note: string) => {
-    setStudents((prev) =>
-      prev.map((student) => (student.id === studentId ? { ...student, note } : student))
-    );
+  const fetchEnrollees = async () => {
+    try {
+      const response = await axios.get("http://localhost/Student_Management_main1/backend/get_enrollees.php");
+      setEnrollees(response.data);
+    } catch (error) {
+      console.error("Error fetching enrollees:", error);
+    }
   };
 
-  const handleSaveAttendance = () => {
-    const attendanceData = students.map((student) => ({
-      id: student.id,
-      name: student.child_name,
-      date: selectedDate,
-      present: student.present,
-      note: student.note,
-    }));
-  
-    fetch("http://localhost/Student_Management_main1/backend/save_attendance.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  const handleAttendanceChange = (id: number, status: string) => {
+    setAttendanceData((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        status,
       },
-      body: JSON.stringify({ attendance: attendanceData }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          // If the response is not OK, throw an error
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Attendance saved:", data);
-        alert("Attendance successfully saved!");
-      })
-      .catch((err) => {
-        console.error("Error saving attendance:", err);
-        alert("Failed to save attendance. Please check the server.");
-      });
-  };  
-  
-
-  const handleViewStudent = (student: Student) => {
-    setViewingStudent(student);
-    setShowModal(true);
+    }));
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    setViewingStudent(null);
+  const handleNoteChange = (id: number, note: string) => {
+    setAttendanceData((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        note,
+      },
+    }));
   };
 
-  const filteredStudents = selectedSchedule
-    ? students.filter((student) => student.schedule === selectedSchedule)
-    : students;
+  const saveAttendance = async () => {
+    const records = Object.entries(attendanceData).map(([id, { status, note }]) => ({
+      student_id: parseInt(id),
+      status,
+      note,
+      date: new Date().toISOString().split("T")[0],
+    }));
+
+    try {
+      await axios.post("http://localhost/Student_Management_main1/backend/save_attendance.php", records);
+      alert("Attendance saved successfully!");
+    } catch (error) {
+      console.error("Error saving attendance:", error);
+    }
+  };
+
+  const openDialog = async (student: Student) => {
+    try {
+      const response = await axios.get(
+        `http://localhost/Student_Management_main1/backend/get_attendance_history.php?student_id=${student.id}`
+      );
+      setAttendanceHistory(response.data);
+      setSelectedStudent(student);
+      setDialogOpen(true);
+    } catch (error) {
+      console.error("Error fetching attendance history:", error);
+    }
+  };
+
+  const closeDialog = () => {
+    setDialogOpen(false);
+    setSelectedStudent(null);
+    setAttendanceHistory([]);
+  };
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="p-4 flex-1">
-        <header className="text-center mt-8 mb-8">
-          <h1 className="text-4xl font-bold">Attendance of Students</h1>
-        </header>
+    <div className="p-4">
+      <Typography variant="h4" className="mb-4">Attendance Manager</Typography>
 
-        <div className="mb-4">
-          <label className="block text-lg font-semibold">Select Date:</label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-64 p-2 border rounded"
-          />
-        </div>
+      {/* Display Enrollees' Child Names */}
+      <Card className="mb-4">
+        <CardContent>
+          <Typography variant="h6">Child Names from Enrollees</Typography>
+          {enrollees.map((enrollee, index) => (
+            <Typography key={index}>{enrollee.child_name}</Typography>
+          ))}
+        </CardContent>
+      </Card>
 
-        <div className="mb-4">
-          <label className="block text-lg font-semibold">Select Schedule:</label>
-          <select
-            className="w-64 p-2 border rounded"
-            value={selectedSchedule}
-            onChange={(e) => setSelectedSchedule(e.target.value)}
-          >
-            <option value="">Select Schedules</option>
-            {Array.from(new Set(students.map((s) => s.schedule))).map((schedule) => (
-              <option key={schedule} value={schedule}>
-                {schedule}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Display Students */}
+      {students.map((student) => (
+        <Card key={student.id} className="mb-4">
+          <CardContent>
+            <Typography variant="h6">{student.name}</Typography>
+            <Typography variant="body2" className="mb-2">Schedule: {student.schedule}</Typography>
 
-        <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-4">Mark Attendance</h2>
-          <div className="overflow-x-auto">
-            <table className="table-auto w-full border border-gray-300">
-              <thead>
-                <tr className="bg-blue-900 text-white">
-                  <th className="border px-4 py-2">Name</th>
-                  <th className="border px-4 py-2">Present</th>
-                  <th className="border px-4 py-2">Notes</th>
-                  <th className="border px-4 py-2">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.map((student) => (
-                  <tr key={student.id} className="text-center">
-                    <td className="border px-4 py-2">{student.child_name}</td>
-                    <td className="border px-4 py-2">
-                      <input
-                        type="checkbox"
-                        checked={student.present}
-                        onChange={() => toggleAttendance(student.id, student.note)}
-                      />
-                    </td>
-                    <td className="border px-4 py-2">
-                      <input
-                        type="text"
-                        placeholder="Add note"
-                        value={student.note}
-                        onChange={(e) => handleNoteChange(student.id, e.target.value)}
-                        className="border rounded p-2"
-                      />
-                    </td>
-                    <td className="border px-4 py-2">
-                      <button
-                        onClick={() => handleViewStudent(student)}
-                        className="bg-green-500 text-white px-2 py-1 rounded"
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="text-center mt-4">
-            <button
-              onClick={handleSaveAttendance}
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Save Attendance
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Modal for attendance history */}
-      {showModal && viewingStudent && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-md w-1/2">
-            <h2 className="text-2xl font-semibold mb-4">
-              Attendance History for {viewingStudent.name}
-            </h2>
-            <table className="table-auto w-full border border-gray-300">
-              <thead>
-                <tr className="bg-blue-900 text-white">
-                  <th className="border px-4 py-2">Date</th>
-                  <th className="border px-4 py-2">Present/Absent</th>
-                  <th className="border px-4 py-2">Notes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {viewingStudent.attendanceHistory.map((entry, index) => (
-                  <tr key={index} className="text-center">
-                    <td className="border px-4 py-2">{entry.date}</td>
-                    <td className="border px-4 py-2">{entry.present ? "Present" : "Absent"}</td>
-                    <td className="border px-4 py-2">{entry.note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mt-4 text-center">
-              <button
-                onClick={closeModal}
-                className="bg-red-500 text-white px-4 py-2 rounded"
-              >
-                Close
-              </button>
+            <div className="flex items-center space-x-4 mb-2">
+              <label className="flex items-center space-x-2">
+                <Checkbox
+                  checked={attendanceData[student.id]?.status === "Present"}
+                  onChange={() => handleAttendanceChange(student.id, "Present")}
+                />
+                <span>Present</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <Checkbox
+                  checked={attendanceData[student.id]?.status === "Absent"}
+                  onChange={() => handleAttendanceChange(student.id, "Absent")}
+                />
+                <span>Absent</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <Checkbox
+                  checked={attendanceData[student.id]?.status === "Late"}
+                  onChange={() => handleAttendanceChange(student.id, "Late")}
+                />
+                <span>Late</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <Checkbox
+                  checked={attendanceData[student.id]?.status === "Excused"}
+                  onChange={() => handleAttendanceChange(student.id, "Excused")}
+                />
+                <span>Excused</span>
+              </label>
             </div>
-          </div>
-        </div>
-      )}
+
+            <TextField
+              label="Note"
+              value={attendanceData[student.id]?.note || ""}
+              onChange={(e) => handleNoteChange(student.id, e.target.value)}
+              fullWidth
+              margin="normal"
+            />
+
+            <Button variant="outlined" onClick={() => openDialog(student)}>
+              View Attendance History
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+
+      <Button variant="contained" onClick={saveAttendance}>
+        Save Attendance
+      </Button>
+
+      <Dialog open={dialogOpen} onClose={closeDialog}>
+        <DialogTitle>Attendance History - {selectedStudent?.name}</DialogTitle>
+        <DialogContent>
+          {attendanceHistory.length > 0 ? (
+            attendanceHistory.map((record, index) => (
+              <div key={index} className="mb-2">
+                <Typography>Date: {record.date}</Typography>
+                <Typography>Status: {record.status}</Typography>
+                <Typography>Note: {record.note}</Typography>
+              </div>
+            ))
+          ) : (
+            <Typography>No attendance history found.</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDialog}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

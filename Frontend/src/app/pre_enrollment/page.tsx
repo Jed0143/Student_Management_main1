@@ -16,6 +16,7 @@ const PreEnrollment = () => {
     secondLanguage: "",
     guardian: "",
     guardianContact: "",
+    guardianRelationship: "",
     motherName: "",
     motherAddress: "",
     motherWork: "",
@@ -118,40 +119,58 @@ const PreEnrollment = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+  
+    // ✅ Do validation BEFORE building FormData
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+  
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      alert("Please enter a valid email.");
+      return;
+    }
+  
+    if (formData.password.length < 6) {
+      alert("Password should be at least 6 characters.");
+      return;
+    }
+  
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value !== null) {
         formDataToSend.append(key, value as unknown as Blob);
       }
     });
-
+  
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/save_enrollment.php", {
         method: "POST",
         body: formDataToSend,
       });
-
+  
       const text = await response.text(); // Get raw text response
-
-      console.log("Raw response:", text); // Log the raw response text
-
+      console.log("Raw response:", text);
+  
       try {
-        const data = JSON.parse(text); // Try parsing as JSON
+        const data = JSON.parse(text);
         console.log("Server JSON:", data);
+  
         if (data.status === "success") {
           alert("Enrollment saved successfully!");
-          router.push("/"); // Redirect to homepage on success
+          router.push("/"); // Redirect to homepage
         } else {
           alert("Error: " + data.message);
         }
       } catch (error) {
-        console.error("Raw response (not JSON):", text); // Log non-JSON responses
+        console.error("Raw response (not JSON):", text);
         alert("Server returned an invalid response.");
       }
     } catch (err) {
       alert("Submission failed.");
     }
   };
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-600 to-blue-900">
@@ -281,6 +300,16 @@ const PreEnrollment = () => {
             />
             <input
               type="text"
+              name="motherAddress"
+              className="w-full p-2 border rounded"
+              placeholder="Address"
+              value={formData.motherAddress}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
+            <input
+              type="text"
               name="motherContact"
               className="w-full p-2 border rounded"
               placeholder="Contact"
@@ -309,6 +338,16 @@ const PreEnrollment = () => {
               className="w-full p-2 border rounded"
               placeholder="Name"
               value={formData.fatherName}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
+            <input
+              type="text"
+              name="fatherAddress"
+              className="w-full p-2 border rounded"
+              placeholder="Address"
+              value={formData.fatherAddress}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
@@ -375,6 +414,17 @@ const PreEnrollment = () => {
               required
               disabled={isFormDisabled}
             />
+            <input
+              type="text"
+              name="guardianRelationship"
+              className="w-full p-2 border rounded"
+              placeholder="Relationship to Student (e.g., Aunt, Uncle, Grandparent)"
+              value={formData.guardianRelationship}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
+
           </div>
 
           <div className="text-xl font-extrabold text-red-500">IN CASE OF EMERGENCY:</div>
@@ -463,16 +513,16 @@ const PreEnrollment = () => {
 
             {/* Confirm Password */}
             <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                name="confirmPassword"
-                className="w-full p-2 border rounded pr-10"
-                placeholder="Confirm Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                disabled={isFormDisabled}
-              />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              className="w-full p-2 border rounded pr-10"
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
             </div>
           </div>
 

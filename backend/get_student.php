@@ -7,18 +7,18 @@ header("Content-Type: application/json");
 include 'db_connection.php';
 $conn = getDBConnection();
 
-$sql = "SELECT * FROM students";
+$sql = "SELECT * FROM pre_enrollment";
 $result = $conn->query($sql);
 
-$students = [];
+$pre_enrollment = [];
 
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $students[] = $row;
+        $pre_enrollment[] = $row;
     }
-    echo json_encode(['students' => $students]);
+    echo json_encode(['pre_enrollment' => $pre_enrollment]);
 } else {
-    echo json_encode(['students' => []]);
+    echo json_encode(['pre_enrollment' => []]);
 }
 
 $conn->close();

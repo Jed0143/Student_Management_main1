@@ -1,25 +1,32 @@
 "use client";
 
-import { useRef, useState, useEffect } from 'react';
-import { Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem } from '@mui/material';
+import { useState, useEffect } from 'react';
+import {
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Select,
+  MenuItem
+} from '@mui/material';
 import Sidebar from "@/components/Sidebar";
-import { useReactToPrint, UseReactToPrintOptions } from "react-to-print";
-import PrintableStudentDetails from "@/components/PrintableStudentDetails"; // Ensure correct import path
+import PrintableStudentDetails from "@/components/PrintableStudentDetails";
 
 interface Enrollee {
   id: number;
   child_name: string;
   email: string;
+  schedule?: string;
 }
 
 const EnrolleesList: React.FC = () => {
   const [enrollees, setEnrollees] = useState<Enrollee[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Enrollee | null>(null);
-  const [schedule, setSchedule] = useState("");
+  const [schedule, setSchedule] = useState<string>('');
   const [openViewDialog, setOpenViewDialog] = useState(false);
-  const [openAcceptDialog, setOpenAcceptDialog] = useState(false);
+  const [openSelectScheduleDialog, setOpenSelectScheduleDialog] = useState(false);
   const [studentDetails, setStudentDetails] = useState<any>(null);
-  const printRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchEnrollees();
@@ -54,38 +61,34 @@ const EnrolleesList: React.FC = () => {
     }
   };
 
-  const handleAccept = async () => {
-    if (selectedStudent) {
+  const handleSelectSchedule = async () => {
+    if (selectedStudent && schedule) {
       try {
-        const response = await fetch("http://localhost/Student_Management_main1/backend/accept_enrollee.php", {
+        const updatedStudent = { ...selectedStudent, schedule };
+
+        setEnrollees(prevEnrollees =>
+          prevEnrollees.map(student =>
+            student.id === selectedStudent.id ? updatedStudent : student
+          )
+        );
+
+        await fetch("http://localhost/Student_Management_main1/backend/update_student_schedule.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             id: selectedStudent.id,
-            schedule: schedule,
+            schedule: updatedStudent.schedule,
           }),
         });
 
-        const result = await response.json();
-        if (result.success) {
-          setEnrollees((prev) => prev.filter((s) => s.id !== selectedStudent.id));
-          alert("The enrollee has been successfully accepted.");
-        } else {
-          alert(result.error || "Unable to accept the enrollee.");
-        }
+        alert("Schedule selected and updated successfully.");
       } catch (error) {
-        console.error("Error accepting enrollee:", error);
-        alert("An unexpected error occurred.");
+        console.error("Error selecting schedule:", error);
+        alert("An error occurred while selecting the schedule.");
       }
     }
-    setOpenAcceptDialog(false);
+    setOpenSelectScheduleDialog(false);
   };
-
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current, // Pass the printRef correctly here
-    documentTitle: "Enrollee Details",
-    onAfterPrint: () => console.log("Print completed"),
-  } as UseReactToPrintOptions);
 
   return (
     <div className="flex">
@@ -108,6 +111,7 @@ const EnrolleesList: React.FC = () => {
               <tr>
                 <th className="border px-4 py-2">Full Name</th>
                 <th className="border px-4 py-2">Email Address</th>
+                <th className="border px-4 py-2">Schedule</th>
                 <th className="border px-4 py-2">Actions</th>
               </tr>
             </thead>
@@ -116,6 +120,7 @@ const EnrolleesList: React.FC = () => {
                 <tr key={student.id} className="text-center">
                   <td className="border px-4 py-2">{student.child_name}</td>
                   <td className="border px-4 py-2">{student.email}</td>
+                  <td className="border px-4 py-2">{student.schedule || '—'}</td>
                   <td className="border px-4 py-2 space-x-2">
                     <button
                       className="text-blue-600 hover:underline"
@@ -127,10 +132,11 @@ const EnrolleesList: React.FC = () => {
                       className="text-green-600 hover:underline"
                       onClick={() => {
                         setSelectedStudent(student);
-                        setOpenAcceptDialog(true);
+                        setSchedule(student.schedule || '');
+                        setOpenSelectScheduleDialog(true);
                       }}
                     >
-                      Accept Enrollee
+                      Choose Schedule
                     </button>
                   </td>
                 </tr>
@@ -143,38 +149,22 @@ const EnrolleesList: React.FC = () => {
         <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} maxWidth="md" fullWidth>
           <DialogTitle className="text-center font-semibold">Pre-Enrollment Information</DialogTitle>
           <DialogContent dividers className="space-y-6">
-            <div ref={printRef}> {/* Attach the printRef here */}
-              {studentDetails ? (
-                <PrintableStudentDetails studentDetails={studentDetails} />
-              ) : (
-                <p>Loading information...</p>
-              )}
-            </div>
+            {studentDetails ? (
+              <PrintableStudentDetails studentDetails={studentDetails} />
+            ) : (
+              <p>Loading information...</p>
+            )}
           </DialogContent>
           <DialogActions>
-            <Button
-              onClick={() => {
-                if (!printRef.current) {
-                  console.error("Print ref is null");
-                  alert("Nothing to print. Please make sure the details are visible.");
-                  return;
-                }
-
-                // Ensure Dialog is open and DOM is updated before printing
-                setTimeout(() => {
-                  handlePrint();
-                }, 200); // slight delay helps ensure it's ready
-              }}
-              color="secondary"
-            >
-              Print
+            <Button onClick={() => setOpenViewDialog(false)} color="primary">
+              Close
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Accept Enrollee Dialog */}
-        <Dialog open={openAcceptDialog} onClose={() => setOpenAcceptDialog(false)}>
-          <DialogTitle>Assign a Schedule</DialogTitle>
+        {/* Choose Schedule Dialog */}
+        <Dialog open={openSelectScheduleDialog} onClose={() => setOpenSelectScheduleDialog(false)}>
+          <DialogTitle>Choose a Schedule</DialogTitle>
           <DialogContent>
             <Select
               className="w-full mb-2"
@@ -187,8 +177,8 @@ const EnrolleesList: React.FC = () => {
             </Select>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setOpenAcceptDialog(false)}>Cancel</Button>
-            <Button onClick={handleAccept} color="primary">Confirm Assignment</Button>
+            <Button onClick={() => setOpenSelectScheduleDialog(false)}>Cancel</Button>
+            <Button onClick={handleSelectSchedule} color="primary">Confirm Schedule</Button>
           </DialogActions>
         </Dialog>
       </main>

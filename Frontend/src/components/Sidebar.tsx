@@ -33,9 +33,8 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Enrollees", href: "/Enrollees" },
-    { name: "Manage Students", href: "/manage-students" },
-    { name: "Attendance", href: "/attendance" },
-    // { name: "Grades", href: "/grades" }, // 🔴 Removed this item
+    { name: "Schedules", href: "/Manage_Students" },
+    { name: "Attendance", href: "/Attendance" },
   ];
 
   const handleLogout = () => {

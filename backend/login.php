@@ -3,51 +3,61 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
-ini_set('display_errors', 1);
 error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mpcar";
+include("db_connection.php");
+$conn = getDBConnection();
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Connection failed: " . $conn->connect_error]));
-}
-
-// Collect POST form data
+// Read POST values
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 
-// Check if email and password are provided
+// Validate inputs
 if (empty($email) || empty($password)) {
-    echo json_encode(["status" => "error", "message" => "Email and password are required."]);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Email and password are required."
+    ]);
     exit;
 }
 
-// Check credentials in database
-$sql = "SELECT id, email, password, role FROM users WHERE email = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$result = $stmt->get_result();
+// Query the database
+$query = $conn->prepare("SELECT * FROM users WHERE email = ?");
+$query->bind_param("s", $email);
+$query->execute();
+$result = $query->get_result();
 
-// Verify the password and fetch user data
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-    
-    // If password matches (in a real-world scenario, you should use password_hash and password_verify)
-    if ($user['password'] === $password) {
-        echo json_encode(["status" => "success", "role" => $user['role']]);
-    } else {
-        echo json_encode(["status" => "error", "message" => "Invalid credentials."]);
-    }
-} else {
-    echo json_encode(["status" => "error", "message" => "No user found with this email."]);
+// Check if user exists
+if ($result->num_rows === 0) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "User not found."
+    ]);
+    exit;
 }
 
-$stmt->close();
+$user = $result->fetch_assoc();
+
+// Check password (No hashing)
+if ($password !== $user['password']) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Invalid credentials."
+    ]);
+    exit;
+}
+
+// Success
+$response = [
+    "status" => "success",
+    "role" => $user['role'],
+    "user" => [
+        "id" => $user['id'],
+        "email" => $user['email']
+    ]
+];
+
+echo json_encode($response);
 $conn->close();
 ?>
