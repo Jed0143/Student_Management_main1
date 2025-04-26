@@ -9,11 +9,9 @@ ini_set('display_errors', 1);
 include("db_connection.php");
 $conn = getDBConnection();
 
-// Read POST values
 $email = $_POST['email'] ?? '';
 $password = $_POST['password'] ?? '';
 
-// Validate inputs
 if (empty($email) || empty($password)) {
     echo json_encode([
         "status" => "error",
@@ -22,13 +20,11 @@ if (empty($email) || empty($password)) {
     exit;
 }
 
-// Query the database
 $query = $conn->prepare("SELECT * FROM users WHERE email = ?");
 $query->bind_param("s", $email);
 $query->execute();
 $result = $query->get_result();
 
-// Check if user exists
 if ($result->num_rows === 0) {
     echo json_encode([
         "status" => "error",
@@ -39,7 +35,7 @@ if ($result->num_rows === 0) {
 
 $user = $result->fetch_assoc();
 
-// Check password (No hashing)
+// Plain-text password check for now
 if ($password !== $user['password']) {
     echo json_encode([
         "status" => "error",
@@ -48,16 +44,14 @@ if ($password !== $user['password']) {
     exit;
 }
 
-// Success
-$response = [
+echo json_encode([
     "status" => "success",
-    "role" => $user['role'],
+    "role" => $user['role'] ?? 'parent', // fallback if role doesn't exist
     "user" => [
         "id" => $user['id'],
         "email" => $user['email']
     ]
-];
+]);
 
-echo json_encode($response);
 $conn->close();
 ?>

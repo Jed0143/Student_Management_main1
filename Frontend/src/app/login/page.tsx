@@ -44,7 +44,7 @@ const Login = () => {
         if (data.role === "admin") {
           router.push("/Enrollees");
         } else if (data.role === "parent") {
-          router.push("/Home");
+          router.push("/My_Profile");
         }
       } else {
         alert(data.message || "Invalid login.");

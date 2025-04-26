@@ -7,9 +7,18 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Sidebar = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  useEffect(() => {
+    // Run only in the browser
+    if (typeof window !== "undefined") {
+      const role = localStorage.getItem("userRole");
+      setUserRole(role);
+    }
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarVisible((prev) => !prev);
@@ -33,14 +42,24 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Enrollees", href: "/Enrollees" },
-    { name: "Schedules", href: "/Manage_Students" },
+    { name: "Student List", href: "/Student_List" },
     { name: "Attendance", href: "/Attendance" },
+    { name: "Admin/Teacher", href: "/Teacher_List" },
   ];
 
   const handleLogout = () => {
     localStorage.removeItem("userToken");
     sessionStorage.removeItem("userToken");
+    localStorage.removeItem("userRole");
     router.push("/");
+  };
+
+  const handleAdminTeacherClick = () => {
+    if (userRole === "admin" || userRole === "teacher") {
+      router.push("/Admin_Teacher");
+    } else {
+      alert("Access denied: You do not have permission to view this page.");
+    }
   };
 
   return (
@@ -59,7 +78,7 @@ const Sidebar = () => {
             {isSidebarVisible ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
           {isSidebarVisible && (
-            <h2 className="text-2xl font-bold text-blue-300 ml-10">Admin Panel</h2>
+            <h2 className="text-2xl font-bold text-blue-300 ml-10">S.A. Panel</h2>
           )}
         </div>
 
@@ -81,6 +100,16 @@ const Sidebar = () => {
             ))}
           </ul>
         )}
+
+        {/* Admin/Teacher button shown only for admin or teacher */}
+        {userRole === "admin" || userRole === "teacher" ? (
+          <button
+            onClick={handleAdminTeacherClick}
+            className="w-full p-2 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            Admin/Teacher
+          </button>
+        ) : null}
 
         {isSidebarVisible && (
           <button

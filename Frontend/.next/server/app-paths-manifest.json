@@ -1,8 +1,7 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
-  "/page": "app/page.js",
-  "/Enrollees/page": "app/Enrollees/page.js",
-  "/Manage_Students/page": "app/Manage_Students/page.js",
   "/Attendance/page": "app/Attendance/page.js",
+  "/Student_List/page": "app/Student_List/page.js",
+  "/Enrollees/page": "app/Enrollees/page.js",
+  "/Teacher_List/page": "app/Teacher_List/page.js",
   "/My_Profile/page": "app/My_Profile/page.js"
 }

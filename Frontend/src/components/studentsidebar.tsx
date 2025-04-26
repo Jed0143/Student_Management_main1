@@ -33,8 +33,8 @@ const StudentSidebar = () => {
   }, [isSidebarVisible]);
 
   const menuItems = [
-    { name: "Home", href: "/My_Profile" },
-    { name: "My Attendance Record", href: "/My_Attendance_Record" },
+    { name: "List of Accepted Student", href: "/My_Profile" },
+    { name: "Attendance", href: "/My_Attendance_Record" },
   ];
 
   const handleLogout = () => {
