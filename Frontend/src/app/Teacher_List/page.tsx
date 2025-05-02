@@ -6,7 +6,7 @@ import { Dialog, TextField } from "@mui/material";
 
 interface Teacher {
   id: number;
-  fullname: string;
+  name: string;
   email: string;
   password: string;
   role: string;
@@ -19,10 +19,10 @@ const Teacher_List: React.FC = () => {
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [newTeacher, setNewTeacher] = useState<Teacher>({
     id: 0,
-    fullname: "",
+    name: "",
     email: "",
-    password: "",
-    role: "admin", // Fixed role as 'admin'
+    password: "teacher1234", // default password
+    role: "admin",
   });
 
   const printRef = useRef<HTMLDivElement>(null);
@@ -47,38 +47,73 @@ const Teacher_List: React.FC = () => {
   };
 
   const handleAddTeacher = () => {
+    setNewTeacher({
+      id: 0,
+      name: "",
+      email: "",
+      password: "teacher1234",
+      role: "admin",
+    });
     setOpenAddDialog(true);
   };
 
-  const handleSaveNewTeacher = async (fullname: string, email: string, password: string, role: string) => {
+  const handleDeleteTeacher = async (id: number) => {
+    if (!confirm('Are you sure you want to delete this teacher?')) return;
+
+    try {
+      const response = await fetch(`http://localhost/Student_Management_main1/backend/delete_teacher.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const textResponse = await response.text();
+      console.log('Raw response:', textResponse);
+
+      const data = JSON.parse(textResponse);
+      if (data.status === 'success') {
+        alert(data.message);
+        fetchTeachers();
+      } else {
+        alert(`Error: ${data.message}`);
+      }
+    } catch (error) {
+      console.error('Error deleting teacher:', error);
+      alert('Failed to delete teacher.');
+    }
+  };
+
+  const handleSaveNewTeacher = async (teacher: Teacher) => {
+    if (!teacher.name || !teacher.email || !teacher.password) {
+      alert("Please fill out all fields (name, email, password).");
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost/Student_Management_main1/backend/save_teacher.php', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fullname, email, password, role }),
+        body: JSON.stringify(teacher),
       });
 
       const textResponse = await response.text();
       console.log('Raw response:', textResponse);
 
-      try {
-        const data = JSON.parse(textResponse);
-        if (data.status === 'success') {
-          alert(data.message);
-          setOpenAddDialog(false);
-          fetchTeachers(); // Refresh teacher list
-        } else {
-          alert(`Error: ${data.message}`);
-        }
-      } catch (error) {
-        console.error('JSON parsing error:', error);
-        alert('Failed to parse response from server.');
+      const data = JSON.parse(textResponse);
+      if (data.status === 'success') {
+        alert(data.message);
+        setOpenAddDialog(false);
+        fetchTeachers();
+      } else {
+        alert(`Error: ${data.message}`);
       }
     } catch (error) {
       console.error('Error saving teacher:', error);
-      alert('Failed to save teacher');
+      alert('Failed to save teacher.');
     }
   };
 
@@ -104,22 +139,26 @@ const Teacher_List: React.FC = () => {
               <tr className="bg-blue-900 text-white">
                 <th className="border px-4 py-2">Name</th>
                 <th className="border px-4 py-2">Email</th>
-                <th className="border px-4 py-2">Password</th>
                 <th className="border px-4 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
               {teachers.map((teacher) => (
                 <tr key={teacher.id} className="text-center">
-                  <td className="border px-4 py-2">{teacher.fullname}</td>
+                  <td className="border px-4 py-2">{teacher.name}</td>
                   <td className="border px-4 py-2">{teacher.email}</td>
-                  <td className="border px-4 py-2">{teacher.password}</td>
-                  <td className="border px-4 py-2">
+                  <td className="border px-4 py-2 space-x-2">
                     <button
-                      className="bg-blue-500 text-white py-1 px-4 rounded"
+                      className="bg-blue-500 text-white py-1 px-3 rounded"
                       onClick={() => handleViewTeacherDetails(teacher)}
                     >
                       View
+                    </button>
+                    <button
+                      className="bg-red-500 text-white py-1 px-3 rounded"
+                      onClick={() => handleDeleteTeacher(teacher.id)}
+                    >
+                      Remove
                     </button>
                   </td>
                 </tr>
@@ -128,23 +167,22 @@ const Teacher_List: React.FC = () => {
           </table>
         </div>
 
-        {/* Teacher Details Dialog */}
+        {/* View Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
           <div className="p-6" ref={printRef}>
             <h2 className="text-2xl font-bold mb-4">
-              Teacher Details: {selectedTeacher?.fullname}
+              Teacher Details: {selectedTeacher?.name}
             </h2>
             {selectedTeacher ? (
               <div>
                 <p><strong>Email:</strong> {selectedTeacher.email}</p>
-                <p><strong>Password:</strong> {selectedTeacher.password}</p>
                 <p><strong>Role:</strong> {selectedTeacher.role}</p>
               </div>
             ) : (
               <p>No teacher details found.</p>
             )}
           </div>
-          <div className="p-4 flex justify-end space-x-4">
+          <div className="p-4 flex justify-end">
             <button
               className="bg-red-500 text-white px-4 py-2 rounded"
               onClick={() => setOpenDialog(false)}
@@ -164,7 +202,7 @@ const Teacher_List: React.FC = () => {
           </button>
         </div>
 
-        {/* Add Teacher Form Dialog */}
+        {/* Add Teacher Dialog */}
         <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="md" fullWidth>
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Add New Teacher</h2>
@@ -174,8 +212,8 @@ const Teacher_List: React.FC = () => {
                   label="Full Name"
                   variant="outlined"
                   fullWidth
-                  name="fullname"
-                  value={newTeacher.fullname}
+                  name="name"
+                  value={newTeacher.name}
                   onChange={handleInputChange}
                   required
                 />
@@ -192,21 +230,14 @@ const Teacher_List: React.FC = () => {
                 />
               </div>
               <div>
-                <TextField
-                  label="Password"
-                  type="password"
-                  variant="outlined"
-                  fullWidth
-                  name="password"
-                  value={newTeacher.password}
-                  onChange={handleInputChange}
-                  required
-                />
+                <label className="block font-medium text-gray-700 mb-1">Role</label>
+                <p className="border border-gray-300 rounded-md p-2 bg-gray-100">admin</p>
               </div>
               <div>
-                <label className="block font-medium text-gray-700 mb-1">Role</label>
-                <p className="border border-gray-300 rounded-md p-2 bg-gray-100">admin</p> {/* Fixed Role */}
+                <label className="block font-medium text-gray-700 mb-1">Default Password</label>
+                <p className="border border-gray-300 rounded-md p-2 bg-gray-100">teacher1234</p>
               </div>
+
               <div className="flex justify-end space-x-4 mt-4">
                 <button
                   type="button"
@@ -218,12 +249,13 @@ const Teacher_List: React.FC = () => {
                 <button
                   type="button"
                   className="bg-green-500 text-white px-6 py-2 rounded"
-                  onClick={() => handleSaveNewTeacher(
-                    newTeacher.fullname,
-                    newTeacher.email,
-                    newTeacher.password,
-                    newTeacher.role // "admin" is fixed
-                  )}
+                  onClick={() => {
+                    if (!newTeacher.name || !newTeacher.email) {
+                      alert("Please fill out Full Name and Email first!");
+                      return;
+                    }
+                    handleSaveNewTeacher(newTeacher);
+                  }}
                 >
                   Save
                 </button>

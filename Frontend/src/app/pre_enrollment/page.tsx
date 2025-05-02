@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Import useRouter
+import StudentSidebar from "@/components/studentsidebar";
 
 const PreEnrollment = () => {
   const [formData, setFormData] = useState({
-    childName: "",
+    name: "",
     Gender: "",
     birthday: "",
     age: "",
@@ -58,18 +59,101 @@ const PreEnrollment = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
-
+  
     if (type === "file") {
       const file = (e.target as HTMLInputElement).files?.[0] || null;
       setFormData((prevData) => ({ ...prevData, [name]: file }));
     } else {
-      setFormData((prevData) => ({ ...prevData, [name]: value }));
-    }
+      let newValue = value;
+  
+      if (name === "childName") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+  
+      if (name === "address") {
+        // Allow letters, numbers, spaces
+        newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
+      }
 
+      if (name === "firstLanguage") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (name === "secondLanguage") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (name === "motherName") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (name === "motherAddress") {
+        // Allow letters, numbers, spaces
+        newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
+      }
+
+      if (name === "motherContact") {
+        // Only digits
+        newValue = value.replace(/\D/g, '');
+  
+        // Limit to 11 digits
+        if (newValue.length > 11) {
+          newValue = newValue.slice(0, 11);
+        }
+  
+        // Force "09" at the start
+        if (!newValue.startsWith('09')) {
+          newValue = '09';
+        }
+      }
+
+      if (name === "motherWork") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (name === "fatherName") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (name === "fatherAddress") {
+        // Allow letters, numbers, spaces
+        newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
+      }
+
+      if (name === "fatherContact") {
+        // Only digits
+        newValue = value.replace(/\D/g, '');
+  
+        // Limit to 11 digits
+        if (newValue.length > 11) {
+          newValue = newValue.slice(0, 11);
+        }
+  
+        // Force "09" at the start
+        if (!newValue.startsWith('09')) {
+          newValue = '09';
+        }
+      }
+
+      if (name === "fatherWork") {
+        // Only letters and spaces
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+  
+      setFormData((prevData) => ({ ...prevData, [name]: newValue }));
+    }
+  
     if (name === "birthday") {
       calculateAge(value);
     }
-  };
+  };  
+  
 
   const fillGuardianFromFather = () => {
     setFormData((prevData) => ({
@@ -138,8 +222,9 @@ const PreEnrollment = () => {
   
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null) {
-        formDataToSend.append(key, value as unknown as Blob);
+      // Ensure the value is not null or undefined before appending
+      if (value !== null && value !== undefined) {
+        formDataToSend.append(key, value as Blob | string);
       }
     });
   
@@ -169,33 +254,23 @@ const PreEnrollment = () => {
     } catch (err) {
       alert("Submission failed.");
     }
-  };
-  
+  };  
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-600 to-blue-900">
+      <StudentSidebar children={undefined} />
       <div className="w-full max-w-4xl px-8 py-10 bg-white rounded-lg shadow-2xl relative">
-        <Link href="/" className="absolute top-4 left-4 px-4 py-2 bg-blue-600 text-white rounded-lg">
-          Back
-        </Link>
-        <h1 className="text-4xl font-extrabold text-blue-900 mb-8 text-center">REGISTRATION FORM</h1>
-
-        {slotsRemaining !== null && (
-          slotsRemaining <= 0 ? (
-            <p className="text-red-500 font-semibold">Enrollment is full. Please try again later.</p>
-          ) : (
-            <p className="text-green-500 font-semibold">Slots remaining: {slotsRemaining}</p>
-          )
-        )}
+        <h1 className="text-4xl font-extrabold text-blue-900 mb-8 text-center">REGISTRATION FORM FOR PARENT</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block font-semibold">Name of Child</label>
             <input
               type="text"
-              name="childName"
+              name="name"
+              placeholder="First Name, Middle Name, Last Name(ex: Juan Santos Cruz)"
               className="w-full p-2 border rounded"
-              value={formData.childName}
+              value={formData.name}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
@@ -250,6 +325,7 @@ const PreEnrollment = () => {
               <input
                 type="text"
                 name="address"
+                placeholder="Enter Address"
                 className="w-full p-2 border rounded"
                 value={formData.address}
                 onChange={handleChange}
@@ -265,6 +341,7 @@ const PreEnrollment = () => {
               <input
                 type="text"
                 name="firstLanguage"
+                placeholder="Enter First Languange"
                 className="w-full p-2 border rounded"
                 value={formData.firstLanguage}
                 onChange={handleChange}
@@ -277,6 +354,7 @@ const PreEnrollment = () => {
               <input
                 type="text"
                 name="secondLanguage"
+                placeholder="Enter Second Languange"
                 className="w-full p-2 border rounded"
                 value={formData.secondLanguage}
                 onChange={handleChange}
@@ -286,38 +364,49 @@ const PreEnrollment = () => {
             </div>
           </div>
 
-          <div className="text-xl font-extrabold text-red-500">MOTHER:</div>
+          <div className="text-xl font-extrabold text-black-500">MOTHER:</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+            <label className="block font-semibold">Name of Mother</label>
             <input
               type="text"
               name="motherName"
               className="w-full p-2 border rounded"
-              placeholder="Name"
+              placeholder="First Name, Middle Name, Last Name(ex: Michelle Santos Cruz)"
               value={formData.motherName}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+              </div>
+              <div>
+              <label className="block font-semibold">Address</label>
             <input
               type="text"
               name="motherAddress"
               className="w-full p-2 border rounded"
-              placeholder="Address"
+              placeholder="Enter Address"
               value={formData.motherAddress}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+            </div>
+            <div>
+            <label className="block font-semibold">Mother Contact</label>
             <input
               type="text"
               name="motherContact"
               className="w-full p-2 border rounded"
-              placeholder="Contact"
+              placeholder="ex: 09*********"
               value={formData.motherContact}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+            </div>
+            <div>
+            <label className="block font-semibold">Work</label>
             <input
               type="text"
               name="motherWork"
@@ -328,40 +417,52 @@ const PreEnrollment = () => {
               required
               disabled={isFormDisabled}
             />
+            </div>
           </div>
 
-          <div className="text-xl font-extrabold text-red-500">FATHER:</div>
+          <div className="text-xl font-extrabold text-black-500">FATHER:</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+            <label className="block font-semibold">Name of Father</label>
             <input
               type="text"
               name="fatherName"
               className="w-full p-2 border rounded"
-              placeholder="Name"
+              placeholder="First Name, Middle Name, Last Name(ex: Miguel Santos Cruz)"
               value={formData.fatherName}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+            </div>
+            <div>
+            <label className="block font-semibold">Address</label>
             <input
               type="text"
               name="fatherAddress"
               className="w-full p-2 border rounded"
-              placeholder="Address"
+              placeholder="Enter Address"
               value={formData.fatherAddress}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+            </div>
+            <div>
+            <label className="block font-semibold">Father Contact</label>
             <input
               type="text"
               name="fatherContact"
               className="w-full p-2 border rounded"
-              placeholder="Contact"
+              placeholder="ex: 09*********"
               value={formData.fatherContact}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+            </div>
+            <div>
+            <label className="block font-semibold">Work</label>
             <input
               type="text"
               name="fatherWork"
@@ -372,9 +473,10 @@ const PreEnrollment = () => {
               required
               disabled={isFormDisabled}
             />
+            </div>
           </div>
 
-          <div className="text-xl font-extrabold text-red-500">GUARDIAN:</div>
+          <div className="text-xl font-extrabold text-black-500">GUARDIAN:</div>
           <div className="flex space-x-4">
             <button
               type="button"
@@ -408,7 +510,7 @@ const PreEnrollment = () => {
               type="text"
               name="guardianContact"
               className="w-full p-2 border rounded"
-              placeholder="Guardian Contact"
+              placeholder="ex: 09*********"
               value={formData.guardianContact}
               onChange={handleChange}
               required
@@ -427,7 +529,7 @@ const PreEnrollment = () => {
 
           </div>
 
-          <div className="text-xl font-extrabold text-red-500">IN CASE OF EMERGENCY:</div>
+          <div className="text-xl font-extrabold text-black-500">IN CASE OF EMERGENCY:</div>
           <div className="flex space-x-4">
             <button
               type="button"
@@ -459,9 +561,8 @@ const PreEnrollment = () => {
             />
             <input
               type="text"
-              name="emergencyContact"
+              placeholder="ex: 09*********"
               className="w-full p-2 border rounded"
-              placeholder="Emergency Contact Number"
               value={formData.emergencyContact}
               onChange={handleChange}
               required
@@ -477,63 +578,15 @@ const PreEnrollment = () => {
               value={formData.date}
               readOnly
             />
-            <input
-              type="email"
-              name="email"
-              className="w-full p-2 border rounded"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              placeholder="Email"
-              disabled={isFormDisabled}
-            />
-          </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Password */}
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                className="w-full p-2 border rounded pr-10"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                disabled={isFormDisabled}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-sm text-blue-600"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
             </div>
 
-            {/* Confirm Password */}
-            <div className="relative">
-            <input
-              type={showConfirmPassword ? "text" : "password"}
-              name="confirmPassword"
-              className="w-full p-2 border rounded pr-10"
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-              disabled={isFormDisabled}
-            />
-            </div>
-          </div>
-
-
-          <div className="flex justify-center">
+          <div className="text-center mt-8">
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg"
+              className="px-6 py-3 bg-blue-700 hover:bg-blue-900 text-white font-bold rounded-lg transition"
               disabled={isFormDisabled}
             >
-              Submit
+              {isFormDisabled ? "No Slots Available" : "Submit Registration"}
             </button>
           </div>
         </form>

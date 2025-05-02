@@ -6,30 +6,15 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/Attendance/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/Attendance/page.js"
+      "static/chunks/app/page.js"
     ],
-    "/Student_List/page": [
+    "/api/User/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/Student_List/page.js"
-    ],
-    "/Enrollees/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/Enrollees/page.js"
-    ],
-    "/Teacher_List/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/Teacher_List/page.js"
-    ],
-    "/My_Profile/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/My_Profile/page.js"
+      "static/chunks/app/api/User/route.js"
     ]
   }
 }

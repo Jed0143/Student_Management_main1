@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -13,7 +14,6 @@ const Sidebar = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Run only in the browser
     if (typeof window !== "undefined") {
       const role = localStorage.getItem("userRole");
       setUserRole(role);
@@ -70,18 +70,31 @@ const Sidebar = () => {
           isSidebarVisible ? "w-64 p-4 md:w-64 md:p-4" : "w-16"
         }`}
       >
-        <div className="flex items-center p-2">
+        {/* Toggle Button */}
+        <div className="flex items-center justify-center p-2 relative">
           <button
             onClick={toggleSidebar}
             className="absolute top-4 left-4 p-2 bg-blue-900 rounded-3xl hover:bg-blue-700 transition-all"
           >
             {isSidebarVisible ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           </button>
+        </div>
+
+        {/* Logo and Role Label */}
+        <div className="flex flex-col items-center mt-10 mb-6">
+          <Image
+            src="/logo.jpg" // Make sure this logo exists in your /public folder
+            alt="Logo"
+            width={isSidebarVisible ? 80 : 40}
+            height={isSidebarVisible ? 80 : 40}
+            className="rounded-full transition-all duration-300"
+          />
           {isSidebarVisible && (
-            <h2 className="text-2xl font-bold text-blue-300 ml-10">S.A. Panel</h2>
+            <span className="mt-2 text-lg font-semibold text-white">SUPER ADMIN</span>
           )}
         </div>
 
+        {/* Menu Items */}
         {isSidebarVisible && (
           <ul className="space-y-4 mt-6">
             {menuItems.map((item) => (
@@ -101,7 +114,7 @@ const Sidebar = () => {
           </ul>
         )}
 
-        {/* Admin/Teacher button shown only for admin or teacher */}
+        {/* Admin/Teacher button */}
         {userRole === "admin" || userRole === "teacher" ? (
           <button
             onClick={handleAdminTeacherClick}
@@ -111,6 +124,7 @@ const Sidebar = () => {
           </button>
         ) : null}
 
+        {/* Logout Button */}
         {isSidebarVisible && (
           <button
             onClick={handleLogout}
@@ -121,6 +135,7 @@ const Sidebar = () => {
         )}
       </div>
 
+      {/* Page Content */}
       <div
         className={`flex-1 p-4 transition-all duration-300 ${
           isSidebarVisible ? "ml-56" : "ml-8"

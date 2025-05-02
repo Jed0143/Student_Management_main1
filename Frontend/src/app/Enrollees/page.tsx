@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, ReactNode } from 'react';
 import {
   Button,
   Dialog,
@@ -9,9 +9,9 @@ import {
   DialogActions
 } from '@mui/material';
 import Sidebar from "@/components/Sidebar";
-import PrintableStudentDetails from "@/components/PrintableStudentDetails";
 
 interface Enrollee {
+  name: ReactNode;
   id: number;
   child_name: string;
   email: string;
@@ -74,6 +74,7 @@ const EnrolleesList: React.FC = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            name: selectedStudent.child_name || selectedStudent.name,
             email: selectedStudent.email,
             password: passwordToSend,
             role: "parent",
@@ -110,10 +111,7 @@ const EnrolleesList: React.FC = () => {
         }
 
         alert("✅ Student accepted and user account created.");
-
-        // ✅ Remove accepted student from the UI list only
         setEnrollees((prev) => prev.filter((e) => e.id !== selectedStudent.id));
-
       } else if (decision === "deny") {
         const deleteStudentResponse = await fetch("http://localhost/Student_Management_main1/backend/delete_student.php", {
           method: "POST",
@@ -129,7 +127,7 @@ const EnrolleesList: React.FC = () => {
         }
 
         alert("❌ " + result.message);
-        await fetchEnrollees(); // refresh list after denial
+        await fetchEnrollees();
       }
     } catch (error) {
       console.error("Error during acceptance/denial process:", error);
@@ -138,6 +136,11 @@ const EnrolleesList: React.FC = () => {
       setOpenSelectScheduleDialog(false);
       setIsProcessing(false);
     }
+  };
+
+  // Function to remove the enrollee from the list (without deleting from backend)
+  const handleRemoveEnrollee = (id: number) => {
+    setEnrollees((prev) => prev.filter((e) => e.id !== id));
   };
 
   return (
@@ -161,7 +164,7 @@ const EnrolleesList: React.FC = () => {
             <tbody>
               {enrollees.map((student) => (
                 <tr key={student.id} className="text-center">
-                  <td className="border px-4 py-2">{student.child_name}</td>
+                  <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">{student.email}</td>
                   <td className="border px-4 py-2 space-x-2">
                     <button
@@ -177,7 +180,7 @@ const EnrolleesList: React.FC = () => {
                         setOpenSelectScheduleDialog(true);
                       }}
                     >
-                      Accept Enrollees
+                      Accept Enrollee
                     </button>
                   </td>
                 </tr>
@@ -188,10 +191,21 @@ const EnrolleesList: React.FC = () => {
 
         {/* View Details Dialog */}
         <Dialog open={openViewDialog} onClose={() => setOpenViewDialog(false)} maxWidth="md" fullWidth>
-          <DialogTitle className="text-center font-semibold">Pre-Enrollment Information</DialogTitle>
-          <DialogContent dividers className="space-y-6">
+          <DialogTitle className="text-center font-semibold">
+            Pre-Enrollment Information
+          </DialogTitle>
+          <DialogContent dividers>
             {studentDetails ? (
-              <PrintableStudentDetails studentDetails={studentDetails} />
+              <div className="grid grid-cols-2 gap-4">
+                {Object.entries(studentDetails)
+                  .filter(([key]) => key !== "password" && key !== "confirm_password" && key !== "id")
+                  .map(([key, value]) => (
+                    <div key={key} className="text-sm">
+                      <strong className="capitalize">{key.replace(/_/g, ' ')}:</strong>{" "}
+                      <span>{value ? String(value) : "N/A"}</span>
+                    </div>
+                  ))}
+              </div>
             ) : (
               <p>Loading information...</p>
             )}

@@ -1,59 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Dialog } from "@mui/material";
+import { Button, Dialog } from "@mui/material";
 
 interface Student {
+  name: string;
   id: number;
-  child_name: string;
-  Gender: string;
-  birthday: string;
-  age: string;
-  registered: string;
-  address: string;
-  first_language: string;
-  second_language: string;
-  guardian: string;
-  guardian_contact: string;
-  guardian_relationship: string;
-  mother_name: string;
-  mother_address: string;
-  mother_work: string;
-  mother_contact: string;
-  father_name: string;
-  father_address: string;
-  father_work: string;
-  father_contact: string;
-  emergency_name: string;
-  emergency_contact: string;
-  emergency_work: string;
-  date: string;
-  email: string;
-  password: string;
-  confirm_password: string;
-  schedule?: string;
+  schedule: string;
 }
 
 const Student_List: React.FC = () => {
-  const [students, setStudents] = useState<Student[]>([]);
+  const [students] = useState<Student[]>([
+    { id: 1, name: "Ana Mendoza", schedule: "9AM-11PM" },
+    { id: 2, name: "Aime Aime", schedule: "1PM-3PM" },
+    { id: 3, name: "Miraniep Formentera", schedule: "3PM-5PM" },
+  ]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
-
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await fetch("http://localhost/Student_Management_main1/backend/get_student.php");
-        const data = await res.json();
-        const studentsData = data?.pre_enrollment ?? [];
-        setStudents(studentsData);
-      } catch (err) {
-        console.error("Error loading students:", err);
-      }
-    };
-
-    fetchStudents();
-  }, []);
 
   const groupedStudents = students.reduce<Record<string, Student[]>>((groups, student) => {
     const schedule = student.schedule?.trim() || "No Schedule";
@@ -65,6 +29,99 @@ const Student_List: React.FC = () => {
   const handleViewDetails = (student: Student) => {
     setSelectedStudent(student);
     setOpenDialog(true);
+  };
+
+  const renderDetails = () => {
+    if (!selectedStudent) return null;
+
+    switch (selectedStudent.name) {
+      case "Ana Mendoza":
+        return (
+          <>
+            <p><strong>Name:</strong> Ana Mendoza</p>
+            <p><strong>Gender:</strong> Female</p>
+            <p><strong>Birthday:</strong> 2019-01-01</p>
+            <p><strong>Age:</strong> 6</p>
+            <p><strong>First Language:</strong> Filipino</p>
+            <p><strong>Second Language:</strong> English</p>
+            <p><strong>Guardian:</strong> Mendoza</p>
+            <p><strong>Guardian Contact:</strong> 094321232</p>
+            <p><strong>Guardian Relationship:</strong> Mother</p>
+            <p><strong>Mother Name:</strong> Mendoza</p>
+            <p><strong>Mother Address:</strong> Rizal</p>
+            <p><strong>Mother Work:</strong> none</p>
+            <p><strong>Mother Contact:</strong> 094321232</p>
+            <p><strong>Father Name:</strong> James</p>
+            <p><strong>Father Address:</strong> Rizal</p>
+            <p><strong>Father Work:</strong> none</p>
+            <p><strong>Father Contact:</strong> 09876543211</p>
+            <p><strong>Emergency Name:</strong> Mendoza</p>
+            <p><strong>Emergency Contact:</strong> 094321232</p>
+            <p><strong>Date:</strong> 2025-04-26</p>
+            <p><strong>Email:</strong> ana@gmail.com</p>
+            <p><strong>Address:</strong> Rizal</p>
+            <p><strong>Schedule:</strong> 9AM-11PM</p>
+          </>
+        );
+      case "Aime Aime":
+        return (
+          <>
+            <p><strong>Name:</strong> Aime Aime</p>
+            <p><strong>Gender:</strong> Female</p>
+            <p><strong>Birthday:</strong> 2018-05-10</p>
+            <p><strong>Age:</strong> 7</p>
+            <p><strong>First Language:</strong> Tagalog</p>
+            <p><strong>Second Language:</strong> English</p>
+            <p><strong>Guardian:</strong> Aime Sr.</p>
+            <p><strong>Guardian Contact:</strong> 09123456789</p>
+            <p><strong>Guardian Relationship:</strong> Mother</p>
+            <p><strong>Mother Name:</strong> Aime Sr.</p>
+            <p><strong>Mother Address:</strong> Antipolo</p>
+            <p><strong>Mother Work:</strong> Vendor</p>
+            <p><strong>Mother Contact:</strong> 09123456789</p>
+            <p><strong>Father Name:</strong> Juan Aime</p>
+            <p><strong>Father Address:</strong> Antipolo</p>
+            <p><strong>Father Work:</strong> Driver</p>
+            <p><strong>Father Contact:</strong> 09999888877</p>
+            <p><strong>Emergency Name:</strong> Aime Sr.</p>
+            <p><strong>Emergency Contact:</strong> 09123456789</p>
+            <p><strong>Date:</strong> 2025-04-27</p>
+            <p><strong>Email:</strong> aime@gmail.com</p>
+            <p><strong>Address:</strong> Antipolo</p>
+            <p><strong>Schedule:</strong> 1PM-3PM</p>
+          </>
+        );
+      case "Miraniep Formentera":
+        return (
+          <>
+            <p><strong>Name:</strong> Miraniep Formentera</p>
+            <p><strong>Gender:</strong> Female</p>
+            <p><strong>Birthday:</strong> 2017-08-15</p>
+            <p><strong>Age:</strong> 8</p>
+            <p><strong>First Language:</strong> Cebuano</p>
+            <p><strong>Second Language:</strong> English</p>
+            <p><strong>Guardian:</strong> Maria Formentera</p>
+            <p><strong>Guardian Contact:</strong> 09778889900</p>
+            <p><strong>Guardian Relationship:</strong> Aunt</p>
+            <p><strong>Mother Name:</strong> Maria Formentera</p>
+            <p><strong>Mother Address:</strong> Quezon City</p>
+            <p><strong>Mother Work:</strong> Clerk</p>
+            <p><strong>Mother Contact:</strong> 09778889900</p>
+            <p><strong>Father Name:</strong> Jose Formentera</p>
+            <p><strong>Father Address:</strong> Quezon City</p>
+            <p><strong>Father Work:</strong> Technician</p>
+            <p><strong>Father Contact:</strong> 09667775544</p>
+            <p><strong>Emergency Name:</strong> Maria Formentera</p>
+            <p><strong>Emergency Contact:</strong> 09778889900</p>
+            <p><strong>Date:</strong> 2025-04-28</p>
+            <p><strong>Email:</strong> miraniep@gmail.com</p>
+            <p><strong>Address:</strong> Quezon City</p>
+            <p><strong>Schedule:</strong> 3PM-5PM</p>
+          </>
+        );
+      default:
+        return <p>No details available</p>;
+    }
   };
 
   return (
@@ -82,14 +139,21 @@ const Student_List: React.FC = () => {
               <thead>
                 <tr className="bg-blue-900 text-white">
                   <th className="border px-4 py-2">Name</th>
-                  <th className="border px-4 py-2">Email</th>
+                  <th className="border px-4 py-2">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {students.map((student) => (
                   <tr key={student.id} className="text-center">
-                    <td className="border px-4 py-2">{student.child_name}</td>
-                    <td className="border px-4 py-2">{student.email}</td>
+                    <td className="border px-4 py-2">{student.name}</td>
+                    <td className="border px-4 py-2">
+                      <button
+                        className="bg-blue-500 text-white py-1 px-4 rounded"
+                        onClick={() => handleViewDetails(student)}
+                      >
+                        View
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -97,73 +161,16 @@ const Student_List: React.FC = () => {
           </div>
         ))}
 
-        {/* Student List Table */}
-        <div className="mt-10">
-          <h2 className="text-2xl font-bold mb-4">Student List</h2>
-          <table className="table-auto w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-blue-900 text-white">
-                <th className="border px-4 py-2">Name</th>
-                <th className="border px-4 py-2">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.id} className="text-center">
-                  <td className="border px-4 py-2">{student.child_name}</td>
-                  <td className="border px-4 py-2">
-                    <button
-                      className="bg-blue-500 text-white py-1 px-4 rounded"
-                      onClick={() => handleViewDetails(student)}
-                    >
-                      View
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Student Details Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Pre-Enrollment Details</h2>
-            {selectedStudent && (
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <p><strong>Name:</strong> {selectedStudent.child_name}</p>
-                <p><strong>Gender:</strong> {selectedStudent.Gender}</p>
-                <p><strong>Birthday:</strong> {selectedStudent.birthday}</p>
-                <p><strong>Age:</strong> {selectedStudent.age}</p>
-                <p><strong>Registered:</strong> {selectedStudent.registered}</p>
-                <p><strong>Address:</strong> {selectedStudent.address}</p>
-                <p><strong>First Language:</strong> {selectedStudent.first_language}</p>
-                <p><strong>Second Language:</strong> {selectedStudent.second_language}</p>
-                <p><strong>Guardian:</strong> {selectedStudent.guardian}</p>
-                <p><strong>Guardian Contact:</strong> {selectedStudent.guardian_contact}</p>
-                <p><strong>Guardian Relationship:</strong> {selectedStudent.guardian_relationship}</p>
-                <p><strong>Mother's Name:</strong> {selectedStudent.mother_name}</p>
-                <p><strong>Mother's Address:</strong> {selectedStudent.mother_address}</p>
-                <p><strong>Mother's Work:</strong> {selectedStudent.mother_work}</p>
-                <p><strong>Mother's Contact:</strong> {selectedStudent.mother_contact}</p>
-                <p><strong>Father's Name:</strong> {selectedStudent.father_name}</p>
-                <p><strong>Father's Address:</strong> {selectedStudent.father_address}</p>
-                <p><strong>Father's Work:</strong> {selectedStudent.father_work}</p>
-                <p><strong>Father's Contact:</strong> {selectedStudent.father_contact}</p>
-                <p><strong>Emergency Contact Name:</strong> {selectedStudent.emergency_name}</p>
-                <p><strong>Emergency Contact:</strong> {selectedStudent.emergency_contact}</p>
-                <p><strong>Emergency Work:</strong> {selectedStudent.emergency_work}</p>
-                <p><strong>Email:</strong> {selectedStudent.email}</p>
-                <p><strong>Date:</strong> {selectedStudent.date}</p>
-              </div>
-            )}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {renderDetails()}
+            </div>
             <div className="mt-6 text-right">
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={() => setOpenDialog(false)}
-              >
+              <Button onClick={() => setOpenDialog(false)} color="primary">
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         </Dialog>

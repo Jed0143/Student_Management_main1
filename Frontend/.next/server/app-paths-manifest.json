@@ -1,7 +1,4 @@
 {
-  "/Attendance/page": "app/Attendance/page.js",
-  "/Student_List/page": "app/Student_List/page.js",
-  "/Enrollees/page": "app/Enrollees/page.js",
-  "/Teacher_List/page": "app/Teacher_List/page.js",
-  "/My_Profile/page": "app/My_Profile/page.js"
+  "/api/User/route": "app/api/User/route.js",
+  "/page": "app/page.js"
 }

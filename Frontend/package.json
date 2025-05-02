@@ -10,7 +10,9 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@headlessui/react": "^2.2.2",
     "@mui/material": "^7.0.1",
+    "@prisma/client": "^6.7.0",
     "axios": "^1.7.9",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
@@ -20,8 +22,9 @@
     "mysql2": "^3.12.0",
     "next": "^15.2.4",
     "react": "^19.0.0",
+    "react-datepicker": "^8.3.0",
     "react-dom": "^19.0.0",
-    "react-to-print": "^3.0.6"
+    "react-to-print": "^3.1.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
@@ -31,6 +34,7 @@
     "eslint": "^8",
     "eslint-config-next": "14.2.2",
     "postcss": "^8",
+    "prisma": "^6.7.0",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.3"
   },

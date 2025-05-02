@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, ReactNode } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Dialog } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 
 interface AttendanceRecord {
   date: string;
@@ -11,6 +11,7 @@ interface AttendanceRecord {
 }
 
 interface Student {
+  name: ReactNode;
   id: number;
   child_name: string;
 }
@@ -21,30 +22,24 @@ const Student_List: React.FC = () => {
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
 
-  useEffect(() => {
-    const fetchStudents = async () => {
-      try {
-        const res = await fetch("http://localhost/Student_Management_main1/backend/get_student.php");
-        const data = await res.json();
-        setStudents(data?.pre_enrollment ?? []);
-      } catch (err) {
-        console.error("Error loading students:", err);
-      }
-    };
-
-    fetchStudents();
+  // Fetch students on mount (optional)
+  React.useEffect(() => {
+    fetch("http://localhost/Student_Management_main1/backend/get_students.php")
+      .then((res) => res.json())
+      .then((data) => setStudents(data))
+      .catch((err) => console.error("Failed to fetch students:", err));
   }, []);
 
-  const handleViewAttendance = async (student: Student) => {
+  const handleViewAttendance = (student: Student) => {
     setSelectedStudent(student);
-    try {
-      const res = await fetch(`http://localhost/Student_Management_main1/backend/get_attendance_history.php?student_id=${student.id}`);
-      const data = await res.json();
-      setAttendance(data?.attendance ?? []);
-      setOpenDialog(true);
-    } catch (err) {
-      console.error("Error loading attendance:", err);
-    }
+    fetch(`http://localhost/Student_Management_main1/backend/get_attendance.php?student_id=${student.id}`)
+      .then((res) => res.json())
+      .then((data: AttendanceRecord[]) => setAttendance(data))
+      .catch((err) => {
+        console.error("Failed to fetch attendance:", err);
+        setAttendance([]);
+      });
+    setOpenDialog(true);
   };
 
   return (
@@ -66,7 +61,7 @@ const Student_List: React.FC = () => {
             <tbody>
               {students.map((student) => (
                 <tr key={student.id} className="text-center">
-                  <td className="border px-4 py-2">{student.child_name}</td>
+                  <td className="border px-4 py-2">{student.name}</td>
                   <td className="border px-4 py-2">
                     <button
                       className="bg-blue-500 text-white py-1 px-4 rounded"
@@ -83,10 +78,10 @@ const Student_List: React.FC = () => {
 
         {/* Attendance Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">
-              Attendance History: {selectedStudent?.child_name}
-            </h2>
+          <DialogTitle className="text-2xl font-bold">
+            Attendance History: {selectedStudent?.name}
+          </DialogTitle>
+          <DialogContent dividers>
             {attendance.length > 0 ? (
               <table className="table-auto w-full border border-gray-300">
                 <thead>
@@ -109,15 +104,15 @@ const Student_List: React.FC = () => {
             ) : (
               <p>No attendance history found.</p>
             )}
-          </div>
-          <div className="p-4 flex justify-end">
+          </DialogContent>
+          <DialogActions>
             <button
               className="bg-red-500 text-white px-4 py-2 rounded"
               onClick={() => setOpenDialog(false)}
             >
               Close
             </button>
-          </div>
+          </DialogActions>
         </Dialog>
       </div>
     </div>
