@@ -42,21 +42,6 @@ const PreEnrollment = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
-  useEffect(() => {
-    const fetchSlots = async () => {
-      try {
-        const res = await fetch("http://localhost/Student_Management_main1/backend/get_enrollment_count.php");
-        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-        const data = await res.json();
-        setSlotsRemaining(typeof data.slots_remaining === "number" ? data.slots_remaining : null);
-      } catch (err) {
-        console.error("Failed to fetch slot count:", err);
-        setSlotsRemaining(null);
-      }
-    };
-    fetchSlots();
-  }, []);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
   
@@ -561,6 +546,7 @@ const PreEnrollment = () => {
             />
             <input
               type="text"
+              name="emergencyContact"
               placeholder="ex: 09*********"
               className="w-full p-2 border rounded"
               value={formData.emergencyContact}

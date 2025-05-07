@@ -11,6 +11,8 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [loggedInEmail, setLoggedInEmail] = useState("");
+  const [loggedInPassword, setLoggedInPassword] = useState("");
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -36,6 +38,14 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
     };
   }, [isSidebarVisible]);
 
+  useEffect(() => {
+    const email = localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail");
+    const password = localStorage.getItem("userPassword") || sessionStorage.getItem("userPassword");
+
+    if (email) setLoggedInEmail(email);
+    if (password) setLoggedInPassword(password);
+  }, []);
+
   const menuItems = [
     { name: "List of Accepted Student", href: "/ADashboard" },
     { name: "Attendance", href: "/AAttendance" },
@@ -46,23 +56,6 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
     localStorage.removeItem("userToken");
     sessionStorage.removeItem("userToken");
     router.push("/");
-  };
-
-  const handleChangePassword = () => {
-    setModalVisible(true);
-  };
-
-  const handleCloseModal = () => {
-    setModalVisible(false);
-  };
-
-  const handleSavePassword = () => {
-    if (newPassword !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    console.log("Password saved:", newPassword);
-    setModalVisible(false);
   };
 
   return (
@@ -87,7 +80,7 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
         {/* Logo and Label */}
         <div className="flex flex-col items-center mt-1 mb-6">
           <Image
-            src="/logo.jpg" // make sure this logo exists in your /public
+            src="/logo.jpg"
             alt="Logo"
             width={isSidebarVisible ? 80 : 40}
             height={isSidebarVisible ? 80 : 40}
@@ -124,13 +117,6 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
         {isSidebarVisible && (
           <div className="mt-auto space-y-4">
             <button
-              onClick={handleChangePassword}
-              className="w-full p-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-            >
-              Change My Password
-            </button>
-
-            <button
               onClick={handleLogout}
               className="w-full p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
@@ -148,46 +134,6 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
       >
         {children}
       </div>
-
-      {/* Modal */}
-      {isModalVisible && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-60">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-80">
-            <h2 className="text-xl font-semibold mb-4">Change Password</h2>
-
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="Enter new password"
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
-
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-            />
-
-            <div className="flex justify-between mt-4">
-              <button
-                onClick={handleCloseModal}
-                className="p-2 bg-gray-300 text-black rounded-lg hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSavePassword}
-                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

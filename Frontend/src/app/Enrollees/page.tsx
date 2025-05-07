@@ -10,55 +10,58 @@ import {
 } from '@mui/material';
 import Sidebar from "@/components/Sidebar";
 
-interface Enrollee {
-  name: ReactNode;
+interface Student {
   id: number;
-  child_name: string;
+  full_name: string;
+  schedule: string;
   email: string;
-  password?: string;
-  schedule?: string;
-  status?: string;
+  gender: string;
+  birthday: string;
+  first_language: string;
+  second_language: string;
+  guardian: string;
+  guardian_contact: string;
+  guardian_relationship: string;
+  mother_name: string;
+  mother_address: string;
+  mother_work: string;
+  mother_contact: string;
+  father_name: string;
+  father_address: string;
+  father_work: string;
+  father_contact: string;
+  emergency_name: string;
+  emergency_contact: string;
+  address: string;
 }
 
 const EnrolleesList: React.FC = () => {
-  const [enrollees, setEnrollees] = useState<Enrollee[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<Enrollee | null>(null);
+  const [students, setStudents] = useState<Student[]>([]); 
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [openViewDialog, setOpenViewDialog] = useState(false);
+  const [studentDetails, setStudentDetails] = useState<Student | null>(null);
   const [openSelectScheduleDialog, setOpenSelectScheduleDialog] = useState(false);
-  const [studentDetails, setStudentDetails] = useState<any>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    fetchEnrollees();
+    const fetchStudents = async () => {
+      try {
+        const response = await fetch("http://localhost/Student_Management_main1/backend/get_info_en.php");
+        if (!response.ok) throw new Error("Network response was not ok");
+        const data = await response.json();
+        if (Array.isArray(data)) setStudents(data);
+        else console.error("Fetched data is not an array:", data);
+      } catch (error) {
+        console.error("There was an error fetching the students:", error);
+      }
+    };
+
+    fetchStudents();
   }, []);
 
-  const fetchEnrollees = async () => {
-    try {
-      const response = await fetch("http://localhost/Student_Management_main1/backend/get_enrollees.php");
-      const data = await response.json();
-      setEnrollees(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Error fetching enrollees:", error);
-      alert("Unable to retrieve enrollee records.");
-    }
-  };
-
-  const handleView = async (student: Enrollee) => {
-    try {
-      const res = await fetch(`http://localhost/Student_Management_main1/backend/get_pre_enrollment_details.php?email=${student.email}`);
-      const data = await res.json();
-
-      if (data.error) {
-        alert("No pre-enrollment details found for this individual.");
-      } else {
-        setStudentDetails(data);
-        setSelectedStudent({ ...student, password: data.password });
-        setOpenViewDialog(true);
-      }
-    } catch (error) {
-      console.error("Error fetching student details:", error);
-      alert("Unable to load student details.");
-    }
+  const handleView = (student: Student) => {
+    setStudentDetails(student); // Set the student details
+    setOpenViewDialog(true); // Open the view details dialog
   };
 
   const handleSelectSchedule = async (decision: "accept" | "deny") => {
@@ -68,34 +71,6 @@ const EnrolleesList: React.FC = () => {
 
     try {
       if (decision === "accept") {
-        const passwordToSend = selectedStudent.password || "defaultpassword123";
-
-        const insertUserResponse = await fetch("http://localhost/Student_Management_main1/backend/insert_user.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: selectedStudent.child_name || selectedStudent.name,
-            email: selectedStudent.email,
-            password: passwordToSend,
-            role: "parent",
-          }),
-        });
-
-        const insertUserText = await insertUserResponse.text();
-        let insertUserResult;
-        try {
-          insertUserResult = JSON.parse(insertUserText);
-        } catch {
-          console.error("Invalid JSON response from PHP:", insertUserText);
-          alert("Server returned an unexpected response.");
-          return;
-        }
-
-        if (insertUserResult.status !== "success") {
-          alert("Failed to create user: " + insertUserResult.message);
-          return;
-        }
-
         const updateStatusResponse = await fetch("http://localhost/Student_Management_main1/backend/update_student_status.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -110,8 +85,8 @@ const EnrolleesList: React.FC = () => {
           return;
         }
 
-        alert("✅ Student accepted and user account created.");
-        setEnrollees((prev) => prev.filter((e) => e.id !== selectedStudent.id));
+        alert("✅ Student accepted.");
+        setStudents((prev) => prev.filter((e) => e.id !== selectedStudent.id));
       } else if (decision === "deny") {
         const deleteStudentResponse = await fetch("http://localhost/Student_Management_main1/backend/delete_student.php", {
           method: "POST",
@@ -127,7 +102,9 @@ const EnrolleesList: React.FC = () => {
         }
 
         alert("❌ " + result.message);
-        await fetchEnrollees();
+        // Fetch updated list of students after deletion
+        const updatedStudents = students.filter((e) => e.id !== selectedStudent.id);
+        setStudents(updatedStudents);
       }
     } catch (error) {
       console.error("Error during acceptance/denial process:", error);
@@ -138,9 +115,34 @@ const EnrolleesList: React.FC = () => {
     }
   };
 
-  // Function to remove the enrollee from the list (without deleting from backend)
-  const handleRemoveEnrollee = (id: number) => {
-    setEnrollees((prev) => prev.filter((e) => e.id !== id));
+  const renderDetails = () => {
+    if (!studentDetails) return null;
+
+    return (
+      <>
+        <p><strong>Name:</strong> {studentDetails.full_name}</p>
+        <p><strong>Email:</strong> {studentDetails.email}</p>
+        <p><strong>Schedule:</strong> {studentDetails.schedule}</p>
+        <p><strong>Gender:</strong> {studentDetails.gender}</p>
+        <p><strong>Birthday:</strong> {studentDetails.birthday}</p>
+        <p><strong>First Language:</strong> {studentDetails.first_language}</p>
+        <p><strong>Second Language:</strong> {studentDetails.second_language}</p>
+        <p><strong>Guardian:</strong> {studentDetails.guardian}</p>
+        <p><strong>Guardian Contact:</strong> {studentDetails.guardian_contact}</p>
+        <p><strong>Guardian Relationship:</strong> {studentDetails.guardian_relationship}</p>
+        <p><strong>Mother's Name:</strong> {studentDetails.mother_name}</p>
+        <p><strong>Mother's Address:</strong> {studentDetails.mother_address}</p>
+        <p><strong>Mother's Work:</strong> {studentDetails.mother_work}</p>
+        <p><strong>Mother's Contact:</strong> {studentDetails.mother_contact}</p>
+        <p><strong>Father's Name:</strong> {studentDetails.father_name}</p>
+        <p><strong>Father's Address:</strong> {studentDetails.father_address}</p>
+        <p><strong>Father's Work:</strong> {studentDetails.father_work}</p>
+        <p><strong>Father's Contact:</strong> {studentDetails.father_contact}</p>
+        <p><strong>Emergency Name:</strong> {studentDetails.emergency_name}</p>
+        <p><strong>Emergency Contact:</strong> {studentDetails.emergency_contact}</p>
+        <p><strong>Address:</strong> {studentDetails.address}</p>
+      </>
+    );
   };
 
   return (
@@ -162,14 +164,14 @@ const EnrolleesList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {enrollees.map((student) => (
+              {students.map((student) => (
                 <tr key={student.id} className="text-center">
-                  <td className="border px-4 py-2">{student.name}</td>
+                  <td className="border px-4 py-2">{student.full_name}</td>
                   <td className="border px-4 py-2">{student.email}</td>
                   <td className="border px-4 py-2 space-x-2">
                     <button
                       className="text-blue-600 hover:underline"
-                      onClick={() => handleView(student)}
+                      onClick={() => handleView(student)} // Open details view
                     >
                       View Details
                     </button>
@@ -197,14 +199,7 @@ const EnrolleesList: React.FC = () => {
           <DialogContent dividers>
             {studentDetails ? (
               <div className="grid grid-cols-2 gap-4">
-                {Object.entries(studentDetails)
-                  .filter(([key]) => key !== "password" && key !== "confirm_password" && key !== "id")
-                  .map(([key, value]) => (
-                    <div key={key} className="text-sm">
-                      <strong className="capitalize">{key.replace(/_/g, ' ')}:</strong>{" "}
-                      <span>{value ? String(value) : "N/A"}</span>
-                    </div>
-                  ))}
+                {renderDetails()}
               </div>
             ) : (
               <p>Loading information...</p>

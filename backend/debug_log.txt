@@ -1,0 +1,178 @@
+Array
+(
+    [students] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 2
+                    [full_name] => Bryan Santos
+                    [schedule] => 9AM-11PM
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => present
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+            [1] => Array
+                (
+                    [id] => 5
+                    [full_name] => Erl Santos
+                    [schedule] => 1AM-3PM
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => present
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+            [2] => Array
+                (
+                    [id] => 7
+                    [full_name] => Donna Santos
+                    [schedule] => 7AM-9PM
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => absent
+                                    [note] => dsdsd
+                                )
+
+                        )
+
+                )
+
+            [3] => Array
+                (
+                    [id] => 8
+                    [full_name] => Aime Santos
+                    [schedule] => 7AM-9PM
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => absent
+                                    [note] => zxzzxz
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: 
+Received data: Array
+(
+    [students] => Array
+        (
+            [0] => Array
+                (
+                    [id] => 2
+                    [full_name] => Bryan Santos
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => absent
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+            [1] => Array
+                (
+                    [id] => 5
+                    [full_name] => Erl Santos
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => absent
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+            [2] => Array
+                (
+                    [id] => 7
+                    [full_name] => Donna Santos
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => absent
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+            [3] => Array
+                (
+                    [id] => 8
+                    [full_name] => Aime Santos
+                    [attendance] => Array
+                        (
+                            [0] => Array
+                                (
+                                    [date] => 2025-05-06
+                                    [status] => present
+                                    [note] => 
+                                )
+
+                        )
+
+                )
+
+        )
+
+)
+
+Inserting: Bryan Santos, 2025-05-06, absent, 
+Inserting: Erl Santos, 2025-05-06, absent, 
+Inserting: Donna Santos, 2025-05-06, absent, 
+Inserting: Aime Santos, 2025-05-06, present, 
+Received data: 
+Received data: 
+Received data: 
+Received data: 

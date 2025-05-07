@@ -1,56 +1,98 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation"; // ✅ FIXED: Import useRouter
 
 const Homepage = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [showCreateModal, setShowCreateModal] = useState(false);
+  const router = useRouter(); // ✅ FIXED: Call useRouter here
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [otp, setOtp] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+  const toggleModal = () => setIsModalOpen(!isModalOpen);
 
-    const toggleModal = () => setIsModalOpen(!isModalOpen);
-
-    const handleLogin = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log('Logging in with:', { email, password });
-    };
-
-    const handleCreateAccount = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+  
+    if (!email || !password) {
+      alert("Email and password are required.");
+      return;
+    }
+  
+    try {
+      // Sending login request to the backend
+      const res = await fetch('http://localhost/Student_Management_main1/backend/login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+  
+      const data = await res.json();
+  
+      // Check if the response indicates success
+      if (data.status === 'success') {
+        const { role, id } = data; // Extract role and id from the response
+  
+        // Role-based redirect with user ID as a query parameter
+        if (role === 'super_admin') {
+          router.push(`/Enrollees?id=${id}`);
+        } else if (role === 'admin') {
+          router.push(`/ADashboard?id=${id}`);
+        } else if (role === 'parent') {
+          router.push(`/Student_Profile?id=${id}`);
+        } else {
+          alert('Unknown role.');
         }
+      } else {
+        alert(data.message || "Login failed. Please check your credentials.");
+      }
+    } catch (error: any) {
+      // Handle network or unexpected errors
+      if (error instanceof TypeError) {
+        alert("Network error: Unable to reach server. Is it running?");
+      } else {
+        alert("An unexpected error occurred: " + error.message);
+      }
+    }
+  };
+  
 
-        console.log("Creating account with:", {
-            email,
-            password,
-            confirmPassword,
-            otp
-        });
+  const handleCreateAccount = (e: React.FormEvent) => {
+    e.preventDefault();
 
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setOtp('');
-        setShowCreateModal(false);
-    };
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
 
-    const handleSendOtp = () => {
-        if (!email) {
-            alert("Please enter your email first.");
-            return;
-        }
+    console.log("Creating account with:", {
+      email,
+      password,
+      confirmPassword,
+      otp,
+    });
 
-        // You can replace this alert with an actual API call
-        alert(`OTP sent to ${email}`);
-    };
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setOtp("");
+    setShowCreateModal(false);
+  };
+
+  const handleSendOtp = () => {
+    if (!email) {
+      alert("Please enter your email first.");
+      return;
+    }
+
+    alert(`OTP sent to ${email}`);
+  };
 
     return (
         <div

@@ -1,0 +1,30 @@
+[24-Apr-2025 17:53:51 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:63
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(63): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 63
+[24-Apr-2025 17:57:42 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:64
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(64): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 64
+[24-Apr-2025 17:59:59 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:64
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(64): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 64
+[24-Apr-2025 18:04:03 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:67
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(67): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 67
+[24-Apr-2025 18:04:18 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:67
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(67): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 67
+[24-Apr-2025 18:52:02 Europe/Berlin] PHP Fatal error:  Uncaught mysqli_sql_exception: Unknown column 'position' in 'field list' in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php:67
+Stack trace:
+#0 C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php(67): mysqli->prepare('INSERT INTO use...')
+#1 {main}
+  thrown in C:\xampp\htdocs\Student_Management_main1\backend\insert_user.php on line 67

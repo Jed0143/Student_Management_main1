@@ -22,6 +22,9 @@ const ModulesList: React.FC = () => {
   const [editedModules, setEditedModules] = useState<{
     [key: number]: { price: number; stocks: number };
   }>({});
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch modules from the database
@@ -29,9 +32,10 @@ const ModulesList: React.FC = () => {
   }, []);
 
   const fetchModules = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/module.php?action=fetch");
-      const text = await response.text(); // Read raw response as text
+      const text = await response.text();
       console.log('Response Text:', text); // Log the raw response to see what’s coming from the backend
   
       if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
@@ -53,21 +57,22 @@ const ModulesList: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching modules:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
-  
 
   const handleAddModule = async () => {
     if (!newModule.name || newModule.price <= 0 || newModule.stocks < 0) {
       alert("Please fill in all fields correctly.");
       return;
     }
-  
+
     const formData = new FormData();
     formData.append("name", newModule.name);
     formData.append("price", newModule.price.toString());
     formData.append("stocks", newModule.stocks.toString());
-  
+
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/module.php", {
         method: "POST",
@@ -75,50 +80,74 @@ const ModulesList: React.FC = () => {
       });
       const text = await response.text();
       console.log('Add Module Response:', text);
-  
+
       if (text.trim().startsWith("{") || text.trim().startsWith("[")) {
         const result = JSON.parse(text);
-  
+
         if (result.message === "Module added successfully") {
+          setMessage("Module added successfully!");
           fetchModules(); // Refresh the module list
           setNewModule({ id: 0, name: "", price: 0, stocks: 0 }); // Reset form
         } else {
-          alert(result.message);
+          setMessage(`Error: ${result.message}`);
         }
       } else {
         console.error('Invalid JSON response:', text);
-        alert("Error: Invalid server response.");
+        setMessage("Error: Invalid server response.");
       }
     } catch (error) {
       console.error("Error adding module:", error);
-    }
-  };  
-
-  const handleEditModule = async (id: number) => {
-    const edited = editedModules[id];
-    if (!edited) return;
-
-    const formData = new FormData();
-    formData.append("id", id.toString());
-    formData.append("price", edited.price.toString());
-    formData.append("stocks", edited.stocks.toString());
-
-    try {
-      const response = await fetch("http://localhost/Student_Management_main1/backend/module.php?action=edit", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.json();
-      if (result.message === "Module updated successfully") {
-        fetchModules(); // Refresh the module list
-      } else {
-        alert(result.message);
-      }
-    } catch (error) {
-      console.error("Error editing module:", error);
+      setMessage("Error adding module.");
     }
   };
 
+  const handleEditModule = async (id: number) => {
+    const edited = editedModules[id];
+    console.log("Edited module:", edited); // Debug log to inspect the edited data
+  
+    // Ensure edited data exists for this module
+    if (!edited || edited.price === undefined || edited.stocks === undefined) {
+        alert("Please make sure all fields are filled before saving.");
+        return;
+    }
+  
+    // Ensure price and stocks are numbers before proceeding
+    const price = edited.price;
+    const stocks = edited.stocks;
+  
+    // Debug to check price and stocks
+    console.log("Price:", price, "Stocks:", stocks);
+
+    if (price <= 0 || stocks < 0) {
+        alert("Price and stocks must be valid numbers.");
+        return;
+    }
+  
+    const formData = new FormData();
+    formData.append("id", id.toString());
+    formData.append("price", price.toString());
+    formData.append("stocks", stocks.toString());
+  
+    try {
+        const response = await fetch("http://localhost/Student_Management_main1/backend/module.php?action=edit", {
+            method: "POST",
+            body: formData,
+        });
+        const result = await response.json();
+        console.log("Edit response:", result); // Debug log to inspect the response
+  
+        if (result.message === "Module updated successfully") {
+            alert("Module updated successfully!");
+            fetchModules(); // Refresh the module list
+        } else {
+            alert(`Error: ${result.message}`);
+        }
+    } catch (error) {
+        console.error("Error editing module:", error);
+    }
+};
+
+  
   const handleDeleteModule = async (id: number) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this module?");
     if (confirmDelete) {
@@ -132,12 +161,14 @@ const ModulesList: React.FC = () => {
         });
         const result = await response.json();
         if (result.message === "Module deleted successfully") {
+          setMessage("Module deleted successfully!");
           fetchModules(); // Refresh the module list
         } else {
-          alert(result.message);
+          setMessage(`Error: ${result.message}`);
         }
       } catch (error) {
         console.error("Error deleting module:", error);
+        setMessage("Error deleting module.");
       }
     }
   };
@@ -159,6 +190,8 @@ const ModulesList: React.FC = () => {
       <div className="flex-1 p-8 transition-all duration-300">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Modules List</h1>
+
+          {message && <div className="text-red-500 mb-4">{message}</div>}
 
           <div className="mt-6">
             <h2 className="text-2xl mb-4">Add New Module</h2>
@@ -223,68 +256,74 @@ const ModulesList: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {modules.map((module) => (
-                <tr key={module.id} className="text-center hover:bg-gray-100">
-                  <td className="border px-4 py-3">{module.name}</td>
-                  <td className="border px-4 py-3">
-                    <input
-                      type="number"
-                      value={editedModules[module.id]?.price ?? module.price}
-                      onChange={(e) => handleChange(module.id, "price", parseFloat(e.target.value))}
-                      className="px-4 py-2 border rounded-md w-24 text-center"
-                    />
-                  </td>
-                  <td className="border px-4 py-3">
-                    <input
-                      type="number"
-                      value={editedModules[module.id]?.stocks ?? module.stocks}
-                      onChange={(e) => handleChange(module.id, "stocks", parseInt(e.target.value, 10))}
-                      className="px-4 py-2 border rounded-md w-20 text-center"
-                    />
-                  </td>
-                  <td className="border px-4 py-3">
-                    <button
-                      onClick={() => handleEditModule(module.id)}
-                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={() => handleDeleteModule(module.id)}
-                      className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded ml-4"
-                    >
-                      Delete
-                    </button>
-                  </td>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4">Loading...</td>
                 </tr>
-              ))}
+              ) : (
+                modules.map((module) => (
+                  <tr key={module.id} className="text-center hover:bg-gray-100">
+                    <td className="border px-4 py-3">{module.name}</td>
+                    <td className="border px-4 py-3">
+                      <input
+                        type="number"
+                        value={editedModules[module.id]?.price ?? module.price}
+                        onChange={(e) => handleChange(module.id, "price", parseFloat(e.target.value))}
+                        className="px-4 py-2 border rounded-md w-24 text-center"
+                      />
+                    </td>
+                    <td className="border px-4 py-3">
+                      <input
+                        type="number"
+                        value={editedModules[module.id]?.stocks ?? module.stocks}
+                        onChange={(e) => handleChange(module.id, "stocks", parseInt(e.target.value, 10))}
+                        className="px-4 py-2 border rounded-md w-20 text-center"
+                      />
+                    </td>
+                    <td className="border px-4 py-3">
+                      <button
+                        onClick={() => handleEditModule(module.id)}
+                        className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => handleDeleteModule(module.id)}
+                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded ml-4"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
 
         <div className="mt-10">
-  <h2 className="text-2xl mb-4">Module Summary Table</h2>
-  <div className="bg-white rounded-lg shadow overflow-x-auto">
-    <table className="table-auto w-full border-collapse">
-      <thead>
-        <tr className="bg-gray-800 text-white text-lg">
-          <th className="border px-4 py-3">Module</th>
-          <th className="border px-4 py-3">Price</th>
-          <th className="border px-4 py-3">Stocks</th>
-        </tr>
-      </thead>
-      <tbody>
-        {modules.map((module) => (
-          <tr key={`summary-${module.id}`} className="text-center hover:bg-gray-100">
-            <td className="border px-4 py-3">{module.name}</td>
-            <td className="border px-4 py-3">₱{module.price.toFixed(2)}</td>
-            <td className="border px-4 py-3">{module.stocks}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+          <h2 className="text-2xl mb-4">Module Summary Table</h2>
+          <div className="bg-white rounded-lg shadow overflow-x-auto">
+            <table className="table-auto w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-800 text-white text-lg">
+                  <th className="border px-4 py-3">Module</th>
+                  <th className="border px-4 py-3">Price</th>
+                  <th className="border px-4 py-3">Stocks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {modules.map((module) => (
+                  <tr key={`summary-${module.id}`} className="text-center hover:bg-gray-100">
+                    <td className="border px-4 py-3">{module.name}</td>
+                    <td className="border px-4 py-3">₱{module.price.toFixed(2)}</td>
+                    <td className="border px-4 py-3">{module.stocks}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
       </div>
     </div>

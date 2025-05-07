@@ -6,15 +6,51 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
+    "/Pre_Enrollment/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Pre_Enrollment/page.js"
+    ],
+    "/AAttendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/AAttendance/page.css",
+      "static/chunks/app/AAttendance/page.js"
+    ],
+    "/ADashboard/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/ADashboard/page.js"
+    ],
+    "/Enrollees/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Enrollees/page.js"
+    ],
+    "/Student_List/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Student_List/page.js"
+    ],
+    "/Attendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Attendance/page.js"
+    ],
+    "/Teacher_List/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Teacher_List/page.js"
+    ],
+    "/List_Modules/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/List_Modules/page.js"
+    ],
     "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
-    ],
-    "/api/User/route": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/api/User/route.js"
     ]
   }
 }

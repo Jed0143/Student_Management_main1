@@ -23,7 +23,7 @@ const Login = () => {
 
     try {
       const response = await fetch(
-        "http://localhost/Student_Management_main1/backend/login.php",
+        "http://localhost/Student_Management_main1/backend/db_connection.php",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

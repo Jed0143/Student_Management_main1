@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import Sidebar from "@/components/Sidebar";
 import { Dialog, TextField } from "@mui/material";
 
 interface Teacher {
   id: number;
-  name: string;
+  full_name: string;
   email: string;
   password: string;
   role: string;
@@ -14,18 +14,17 @@ interface Teacher {
 
 const Teacher_List: React.FC = () => {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
-  const [selectedTeacher, setSelectedTeacher] = useState<Teacher | null>(null);
-  const [openDialog, setOpenDialog] = useState(false);
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [newTeacher, setNewTeacher] = useState<Teacher>({
     id: 0,
-    name: "",
+    full_name: "",
     email: "",
     password: "teacher1234", // default password
     role: "admin",
   });
-
-  const printRef = useRef<HTMLDivElement>(null);
+  const [editingPassword, setEditingPassword] = useState<number | null>(null);
+  const [editedPassword, setEditedPassword] = useState<string>("");
+  const [isSaving, setIsSaving] = useState<boolean>(false);  // Track saving status
 
   const fetchTeachers = async () => {
     try {
@@ -41,15 +40,10 @@ const Teacher_List: React.FC = () => {
     fetchTeachers();
   }, []);
 
-  const handleViewTeacherDetails = (teacher: Teacher) => {
-    setSelectedTeacher(teacher);
-    setOpenDialog(true);
-  };
-
   const handleAddTeacher = () => {
     setNewTeacher({
       id: 0,
-      name: "",
+      full_name: "",
       email: "",
       password: "teacher1234",
       role: "admin",
@@ -58,72 +52,111 @@ const Teacher_List: React.FC = () => {
   };
 
   const handleDeleteTeacher = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this teacher?')) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete this teacher?");
+    if (!confirmDelete) return;
 
     try {
-      const response = await fetch(`http://localhost/Student_Management_main1/backend/delete_teacher.php`, {
-        method: 'POST',
+      const response = await fetch("http://localhost/Student_Management_main1/backend/delete_teacher.php?action=delete", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ id }),
       });
 
       const textResponse = await response.text();
-      console.log('Raw response:', textResponse);
+      console.log("Raw Response:", textResponse);
 
-      const data = JSON.parse(textResponse);
-      if (data.status === 'success') {
-        alert(data.message);
+      const result = JSON.parse(textResponse);
+      if (result.status === "success") {
+        alert("Teacher deleted successfully!");
         fetchTeachers();
       } else {
-        alert(`Error: ${data.message}`);
+        alert(`Error: ${result.message}`);
       }
     } catch (error) {
-      console.error('Error deleting teacher:', error);
-      alert('Failed to delete teacher.');
+      console.error("Error deleting teacher:", error);
+      alert("Error deleting teacher.");
     }
   };
 
   const handleSaveNewTeacher = async (teacher: Teacher) => {
-    if (!teacher.name || !teacher.email || !teacher.password) {
+    if (!teacher.full_name || !teacher.email || !teacher.password) {
       alert("Please fill out all fields (name, email, password).");
       return;
     }
 
+    setIsSaving(true);  // Set saving state to true
+
     try {
-      const response = await fetch('http://localhost/Student_Management_main1/backend/save_teacher.php', {
-        method: 'POST',
+      const response = await fetch("http://localhost/Student_Management_main1/backend/save_teacher.php", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(teacher),
       });
 
       const textResponse = await response.text();
-      console.log('Raw response:', textResponse);
+      console.log("Raw response:", textResponse);
 
       const data = JSON.parse(textResponse);
-      if (data.status === 'success') {
+      if (data.status === "success") {
         alert(data.message);
         setOpenAddDialog(false);
-        fetchTeachers();
+        window.location.reload(); // Full page reload to refresh the teachers list
       } else {
         alert(`Error: ${data.message}`);
       }
     } catch (error) {
-      console.error('Error saving teacher:', error);
-      alert('Failed to save teacher.');
+      console.error("Error saving teacher:", error);
+      alert("Failed to save teacher.");
+    } finally {
+      setIsSaving(false);  // Set saving state back to false
     }
   };
 
-  const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handlePasswordChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
+    setEditedPassword(event.target.value);
+    setEditingPassword(id);
+  };
+
+  const handleSavePassword = async (id: number) => {
+    if (!editedPassword) {
+      alert("Please enter a new password.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost/Student_Management_main1/backend/update_teacher_password.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, password: editedPassword }),
+      });
+
+      const result = await response.json();
+      if (result.status === "success") {
+        alert("Password updated successfully.");
+        setEditingPassword(null);
+        fetchTeachers();
+      } else {
+        alert(`Error: ${result.message}`);
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      alert("Error updating password.");
+    }
+  };
+
+  function handleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
     const { name, value } = event.target;
-    setNewTeacher((prevTeacher) => ({
-      ...prevTeacher,
+    setNewTeacher((prev) => ({
+      ...prev,
       [name]: value,
     }));
-  };
+  }
 
   return (
     <div className="flex">
@@ -139,21 +172,49 @@ const Teacher_List: React.FC = () => {
               <tr className="bg-blue-900 text-white">
                 <th className="border px-4 py-2">Name</th>
                 <th className="border px-4 py-2">Email</th>
+                <th className="border px-4 py-2">Password</th>
                 <th className="border px-4 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
               {teachers.map((teacher) => (
                 <tr key={teacher.id} className="text-center">
-                  <td className="border px-4 py-2">{teacher.name}</td>
+                  <td className="border px-4 py-2">{teacher.full_name}</td>
                   <td className="border px-4 py-2">{teacher.email}</td>
+                  <td className="border px-4 py-2">
+                    {editingPassword === teacher.id ? (
+                      <div className="flex items-center space-x-2">
+                        <TextField
+                          type="text"
+                          value={editedPassword}
+                          onChange={(e) => handlePasswordChange(e, teacher.id)}
+                          size="small"
+                          variant="outlined"
+                        />
+                      </div>
+                    ) : (
+                      <span>{teacher.password}</span>
+                    )}
+                  </td>
                   <td className="border px-4 py-2 space-x-2">
-                    <button
-                      className="bg-blue-500 text-white py-1 px-3 rounded"
-                      onClick={() => handleViewTeacherDetails(teacher)}
-                    >
-                      View
-                    </button>
+                    {editingPassword === teacher.id ? (
+                      <button
+                        className="bg-green-500 text-white px-4 py-2 rounded"
+                        onClick={() => handleSavePassword(teacher.id)}
+                      >
+                        Save
+                      </button>
+                    ) : (
+                      <button
+                        className="bg-yellow-500 text-white py-1 px-3 rounded"
+                        onClick={() => {
+                          setEditingPassword(teacher.id);
+                          setEditedPassword(teacher.password);
+                        }}
+                      >
+                        Change Password
+                      </button>
+                    )}
                     <button
                       className="bg-red-500 text-white py-1 px-3 rounded"
                       onClick={() => handleDeleteTeacher(teacher.id)}
@@ -167,32 +228,6 @@ const Teacher_List: React.FC = () => {
           </table>
         </div>
 
-        {/* View Dialog */}
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
-          <div className="p-6" ref={printRef}>
-            <h2 className="text-2xl font-bold mb-4">
-              Teacher Details: {selectedTeacher?.name}
-            </h2>
-            {selectedTeacher ? (
-              <div>
-                <p><strong>Email:</strong> {selectedTeacher.email}</p>
-                <p><strong>Role:</strong> {selectedTeacher.role}</p>
-              </div>
-            ) : (
-              <p>No teacher details found.</p>
-            )}
-          </div>
-          <div className="p-4 flex justify-end">
-            <button
-              className="bg-red-500 text-white px-4 py-2 rounded"
-              onClick={() => setOpenDialog(false)}
-            >
-              Close
-            </button>
-          </div>
-        </Dialog>
-
-        {/* Add Teacher Button */}
         <div className="mt-6 text-center">
           <button
             className="bg-green-500 text-white px-6 py-2 rounded"
@@ -202,7 +237,6 @@ const Teacher_List: React.FC = () => {
           </button>
         </div>
 
-        {/* Add Teacher Dialog */}
         <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="md" fullWidth>
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Add New Teacher</h2>
@@ -212,8 +246,8 @@ const Teacher_List: React.FC = () => {
                   label="Full Name"
                   variant="outlined"
                   fullWidth
-                  name="name"
-                  value={newTeacher.name}
+                  name="full_name"
+                  value={newTeacher.full_name}
                   onChange={handleInputChange}
                   required
                 />
@@ -250,14 +284,15 @@ const Teacher_List: React.FC = () => {
                   type="button"
                   className="bg-green-500 text-white px-6 py-2 rounded"
                   onClick={() => {
-                    if (!newTeacher.name || !newTeacher.email) {
+                    if (!newTeacher.full_name || !newTeacher.email) {
                       alert("Please fill out Full Name and Email first!");
                       return;
                     }
                     handleSaveNewTeacher(newTeacher);
                   }}
+                  disabled={isSaving}  // Disable the Save button if saving is in progress
                 >
-                  Save
+                  {isSaving ? "Saving..." : "Save"}  {/* Show 'Saving...' while saving */}
                 </button>
               </div>
             </form>

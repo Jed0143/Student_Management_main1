@@ -1,0 +1,26 @@
+INSERT: INSERT INTO attendance (student_id, full_name, schedule, date, status, note) VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+                ON DUPLICATE KEY UPDATE status='present', note='', schedule='9AM-11PM'
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')
+INSERT INTO attendance (student_id, full_name, schedule, date, status, note)
+                VALUES ('2', 'Bryan Santos', '9AM-11PM', '2025-05-06', 'present', '')

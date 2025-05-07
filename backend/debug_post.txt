@@ -1,0 +1,29 @@
+Array
+(
+    [name] => dsd
+    [Gender] => Male
+    [birthday] => 2323-03-23
+    [age] => -298
+    [registered] => 
+    [address] => dsd
+    [firstLanguage] => dsd
+    [secondLanguage] => sd
+    [guardian] => gfgfgfgf
+    [guardianContact] => 09876543211
+    [guardianRelationship] => fgfgfg
+    [motherName] => dsd
+    [motherAddress] => dsd
+    [motherWork] => dsd
+    [motherContact] => 09323232323
+    [fatherName] => sdsd
+    [fatherAddress] => dsdsdsdsd
+    [fatherWork] => ddsd
+    [fatherContact] => 09323223232
+    [emergencyName] => sdsd
+    [emergencyContact] => 09323223232
+    [emergencyWork] => ddsd
+    [date] => 2025-04-28
+    [email] => jhustinerl04@gmail.com
+    [password] => 123456
+    [confirmPassword] => 123456
+)

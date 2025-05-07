@@ -67,7 +67,7 @@ const Adashboard = () => {
     if (selectedStudent && selectedSchedule) {
       const requestBody = {
         id: selectedStudent.id,
-        name: selectedStudent.name,
+        name: selectedStudent.full_name,
         email: selectedStudent.email,
         schedule: selectedSchedule,
       };
@@ -144,7 +144,7 @@ const Adashboard = () => {
                 <tbody>
                   {filterWithoutSchedule().map((stu) => (
                     <tr key={stu.id} className="border-t">
-                      <td className="px-4 py-2">{stu.name}</td>
+                      <td className="px-4 py-2">{stu.full_name}</td>
                       <td className="px-4 py-2">{stu.email}</td>
                       <td className="px-4 py-2">
                         <button
@@ -175,14 +175,14 @@ const Adashboard = () => {
                     <tbody>
                       {filterBySchedule(time).map((stu) => (
                         <tr key={stu.id} className="border-t">
-                          <td className="px-4 py-2">{stu.name}</td>
+                          <td className="px-4 py-2">{stu.full_name}</td>
                           <td className="px-4 py-2">{stu.email}</td>
                           <td className="px-4 py-2">
                             <button
                               onClick={() => handleSetSchedule(stu.id)}
                               className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
                             >
-                              Set Schedule
+                              Change Schedule
                             </button>
                           </td>
                         </tr>
