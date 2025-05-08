@@ -1,70 +1,72 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "student_management";
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
-// Establish database connection
-$conn = new mysqli($servername, $username, $password, $database);
+$data = json_decode(file_get_contents("php://input"), true);
 
-// Check if the connection was successful
-if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
+// Validate input
+if (!$data || !isset($data['date']) || !isset($data['students']) || !is_array($data['students'])) {
+    http_response_code(400);
+    echo json_encode(["message" => "Invalid input."]);
     exit;
 }
 
-// Check if the request method is POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get the raw POST data
-    $data = json_decode(file_get_contents('php://input'), true);
+$date = $data['date'];
+$students = $data['students'];
 
-    if (isset($data['students'])) {
-        $students = $data['students'];
+// Log the received data
+error_log("Received Data: " . print_r($data, true));
 
-        // Prepare the SQL query to insert attendance data
-        $stmt = $conn->prepare("INSERT INTO attendance (date, status, note, student_id) VALUES (?, ?, ?, ?)");
-
-        // Loop through the students array and insert each student's attendance record
-        foreach ($students as $student) {
-            // Get the data for each student
-            $date = $student['attendance'][0]['date'];
-            $status = $student['attendance'][0]['status'];
-            $note = $student['attendance'][0]['note'];
-            $student_id = $student['id']; // Using student ID from the frontend
-
-            // Debugging: Check what data is being inserted
-            error_log("Inserting attendance for student ID $student_id: Date=$date, Status=$status, Note=$note");
-
-            // Bind parameters and execute
-            if ($stmt->bind_param('sssi', $date, $status, $note, $student_id)) {
-                if (!$stmt->execute()) {
-                    // Log the error if execution fails
-                    error_log("Error executing statement: " . $stmt->error);
-                }
-            } else {
-                // Log parameter binding error
-                error_log("Error binding parameters: " . $stmt->error);
-            }
-        }
-
-        // Send a success response
-        echo json_encode(['success' => true, 'message' => 'Attendance saved successfully']);
-    } else {
-        // Send an error response if invalid data
-        echo json_encode(['success' => false, 'message' => 'Invalid data']);
-    }
-} else {
-    // Handle invalid request methods
-    echo json_encode(['success' => false, 'message' => 'Invalid request method']);
+$conn = new mysqli("localhost", "root", "", "student_management");
+if ($conn->connect_error) {
+    http_response_code(500);
+    echo json_encode(["message" => "Database connection failed."]);
+    exit;
 }
 
-// Close the database connection
+// Insert each student's attendance
+// Insert each student's attendance
+foreach ($students as $student) {
+    $id = $student['id'];
+    $status = $student['status'];
+    $reason = $student['reason'];
+    $full_name = $student['full_name'];
+
+    // Log values before executing the query
+    error_log("Inserting attendance: ID: $id, Status: $status, Reason: $reason, Full Name: $full_name");
+
+    // Prepare the SQL query
+    $stmt = $conn->prepare("INSERT INTO attendance (student_id, date, status, reason, full_name) VALUES (?, ?, ?, ?, ?)");
+    
+    if ($stmt === false) {
+        error_log("Error preparing query: " . $conn->error);
+        continue;
+    }
+
+    // Bind parameters
+    if (!$stmt->bind_param("issss", $id, $date, $status, $reason, $full_name)) {
+        error_log("Error binding parameters: " . $stmt->error);
+        continue;
+    }
+
+    // Execute query and log any failures
+    if (!$stmt->execute()) {
+        error_log("Error executing query for student ID $id: " . $stmt->error);
+    } else {
+        error_log("Successfully inserted attendance for student ID: $id");
+    }
+}
+
+
+$stmt->close();
 $conn->close();
+
+echo json_encode(["message" => "Attendance saved successfully."]);
 ?>

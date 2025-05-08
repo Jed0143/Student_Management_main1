@@ -43,7 +43,6 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Enrollees", href: "/Enrollees" },
     { name: "Student List", href: "/Student_List" },
-    { name: "Attendance", href: "/Attendance" },
     { name: "Admin/Teacher", href: "/Teacher_List" },
   ];
 

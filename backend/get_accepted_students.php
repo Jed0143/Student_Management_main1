@@ -20,8 +20,8 @@ if ($conn->connect_error) {
     exit();
 }
 
-// SQL query to fetch students' name and schedule
-$sql = "SELECT id, full_name, email, schedule FROM pre_enrollment";  // Assuming `students` table contains the required data
+// SQL query to fetch accepted students' name, email, and schedule
+$sql = "SELECT id, full_name, email, schedule FROM pre_enrollment WHERE status = 'accepted'";
 $result = $conn->query($sql);
 
 if (!$result) {
@@ -31,18 +31,12 @@ if (!$result) {
 
 $students = [];
 
-// Fetch data if any records exist
 if ($result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $students[] = $row;
     }
-} else {
-    // If no students are found, return an empty array
-    $students = [];
 }
 
 echo json_encode($students);
-
-// Close the database connection
 $conn->close();
 ?>

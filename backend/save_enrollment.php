@@ -32,7 +32,7 @@ $requiredFields = [
     'firstLanguage', 'secondLanguage', 'guardian', 'guardianContact', 'guardianRelationship',
     'motherName', 'motherAddress', 'motherWork', 'motherContact',
     'fatherName', 'fatherAddress', 'fatherWork', 'fatherContact',
-    'emergencyName', 'emergencyContact', 'email', 'password', 'confirmPassword'
+    'emergencyName', 'emergencyContact'
 ];
 
 foreach ($requiredFields as $field) {
@@ -63,16 +63,8 @@ $fatherWork = $_POST['fatherWork'];
 $fatherContact = $_POST['fatherContact'];
 $emergencyName = $_POST['emergencyName'];
 $emergencyContact = $_POST['emergencyContact'];
-$email = $_POST['email'];
-$password = $_POST['password'];
-$confirmPassword = $_POST['confirmPassword'];
 $date = $_POST['date'] ?? date('Y-m-d');
 
-// Validate passwords match
-if ($password !== $confirmPassword) {
-    echo json_encode(["status" => "error", "message" => "Passwords do not match."]);
-    exit;
-}
 
 // Hash password for storage in the users table
 $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
@@ -83,8 +75,8 @@ $sql = "INSERT INTO pre_enrollment (
     first_language, second_language, guardian, guardian_contact, guardian_relationship,
     mother_name, mother_address, mother_work, mother_contact,
     father_name, father_address, father_work, father_contact,
-    emergency_name, emergency_contact, date, email, password
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    emergency_name, emergency_contact, date
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
@@ -94,12 +86,12 @@ if (!$stmt) {
 }
 
 // Bind parameters correctly (correct data types: s for string, i for integer)
-$stmt->bind_param("sssssssssssssssssssssss", 
+$stmt->bind_param("sssssssssssssssssssss", 
     $name, $Gender, $birthday, $age, $address,
     $firstLanguage, $secondLanguage, $guardian, $guardianContact, $guardianRelationship,
     $motherName, $motherAddress, $motherWork, $motherContact,
     $fatherName, $fatherAddress, $fatherWork, $fatherContact,
-    $emergencyName, $emergencyContact, $date, $email, $password // Store raw password for pre_enrollment
+    $emergencyName, $emergencyContact, $date
 );
 
 if ($stmt->execute()) {

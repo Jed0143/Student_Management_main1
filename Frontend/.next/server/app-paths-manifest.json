@@ -1,8 +1,9 @@
 {
-  "/ADashboard/page": "app/ADashboard/page.js",
   "/Enrollees/page": "app/Enrollees/page.js",
   "/Student_List/page": "app/Student_List/page.js",
+  "/ADashboard/page": "app/ADashboard/page.js",
   "/page": "app/page.js",
-  "/Attendance/page": "app/Attendance/page.js",
-  "/List_Modules/page": "app/List_Modules/page.js"
+  "/Teacher_List/page": "app/Teacher_List/page.js",
+  "/List_Modules/page": "app/List_Modules/page.js",
+  "/AAttendance/page": "app/AAttendance/page.js"
 }
