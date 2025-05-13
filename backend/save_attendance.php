@@ -32,18 +32,16 @@ if ($conn->connect_error) {
 }
 
 // Insert each student's attendance
-// Insert each student's attendance
 foreach ($students as $student) {
-    $id = $student['id'];
     $status = $student['status'];
     $reason = $student['reason'];
     $full_name = $student['full_name'];
 
     // Log values before executing the query
-    error_log("Inserting attendance: ID: $id, Status: $status, Reason: $reason, Full Name: $full_name");
+    error_log("Inserting attendance: Status: $status, Reason: $reason, Full Name: $full_name");
 
     // Prepare the SQL query
-    $stmt = $conn->prepare("INSERT INTO attendance (student_id, date, status, reason, full_name) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO attendance (date, status, reason, full_name) VALUES (?, ?, ?, ?)");
     
     if ($stmt === false) {
         error_log("Error preparing query: " . $conn->error);
@@ -51,19 +49,18 @@ foreach ($students as $student) {
     }
 
     // Bind parameters
-    if (!$stmt->bind_param("issss", $id, $date, $status, $reason, $full_name)) {
+    if (!$stmt->bind_param("ssss", $date, $status, $reason, $full_name)) {
         error_log("Error binding parameters: " . $stmt->error);
         continue;
     }
 
     // Execute query and log any failures
     if (!$stmt->execute()) {
-        error_log("Error executing query for student ID $id: " . $stmt->error);
+        error_log("Error executing query for student: $full_name - " . $stmt->error);
     } else {
-        error_log("Successfully inserted attendance for student ID: $id");
+        error_log("Successfully inserted attendance for student: $full_name");
     }
 }
-
 
 $stmt->close();
 $conn->close();

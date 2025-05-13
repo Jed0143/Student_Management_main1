@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Needed for client-side-only features like localStorage
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Sidebar = () => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
@@ -15,8 +17,29 @@ const Sidebar = () => {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
+      const email = localStorage.getItem("userEmail");
       const role = localStorage.getItem("userRole");
+      setUserEmail(email);
       setUserRole(role);
+
+      if (email) {
+        fetch(
+          "http://localhost/Student_Management_main1/backend/myid.php?email=" +
+            encodeURIComponent(email)
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.userId) {
+              setUserId(data.userId);
+              localStorage.setItem("userId", data.userId);
+            } else {
+              console.error("User ID not found:", data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user ID:", error);
+          });
+      }
     }
   }, []);
 
@@ -47,9 +70,8 @@ const Sidebar = () => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    sessionStorage.removeItem("userToken");
-    localStorage.removeItem("userRole");
+    localStorage.clear();
+    sessionStorage.clear();
     router.push("/");
   };
 
@@ -69,7 +91,6 @@ const Sidebar = () => {
           isSidebarVisible ? "w-64 p-4 md:w-64 md:p-4" : "w-16"
         }`}
       >
-        {/* Toggle Button */}
         <div className="flex items-center justify-center p-2 relative">
           <button
             onClick={toggleSidebar}
@@ -79,21 +100,26 @@ const Sidebar = () => {
           </button>
         </div>
 
-        {/* Logo and Role Label */}
         <div className="flex flex-col items-center mt-10 mb-6">
           <Image
-            src="/logo.jpg" // Make sure this logo exists in your /public folder
+            src="/logo.jpg"
             alt="Logo"
             width={isSidebarVisible ? 80 : 40}
             height={isSidebarVisible ? 80 : 40}
             className="rounded-full transition-all duration-300"
           />
           {isSidebarVisible && (
-            <span className="mt-2 text-lg font-semibold text-white">SUPER ADMIN</span>
+            <div className="text-center mt-2">
+              {userEmail && (
+                <span className="text-lg font-semibold text-white block">{userEmail}</span>
+              )}
+              {userId && (
+                <span className="text-sm text-gray-300 block">{userId}</span>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Menu Items */}
         {isSidebarVisible && (
           <ul className="space-y-4 mt-6">
             {menuItems.map((item) => (
@@ -113,17 +139,16 @@ const Sidebar = () => {
           </ul>
         )}
 
-        {/* Admin/Teacher button */}
-        {userRole === "admin" || userRole === "teacher" ? (
+        {/* Render button only if userRole is loaded and is admin or teacher */}
+        {["admin", "teacher"].includes(userRole || "") && (
           <button
             onClick={handleAdminTeacherClick}
             className="w-full p-2 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
           >
             Admin/Teacher
           </button>
-        ) : null}
+        )}
 
-        {/* Logout Button */}
         {isSidebarVisible && (
           <button
             onClick={handleLogout}
@@ -134,13 +159,12 @@ const Sidebar = () => {
         )}
       </div>
 
-      {/* Page Content */}
       <div
         className={`flex-1 p-4 transition-all duration-300 ${
           isSidebarVisible ? "ml-56" : "ml-8"
         }`}
       >
-        {/* Page content goes here */}
+        {/* Page content */}
       </div>
     </div>
   );

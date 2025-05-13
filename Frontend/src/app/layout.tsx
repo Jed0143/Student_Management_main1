@@ -6,8 +6,8 @@ import Navbar from "@/components/Sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Student Management",
-  description: "Student Management",
+  title: "Mahabang Parang Child Development Center Angono, Rizal",
+  description: "Mahabang Parang Child Development Center Angono, Rizal",
 };
 
 export default function RootLayout({

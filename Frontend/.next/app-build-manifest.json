@@ -21,11 +21,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/Student_List/page.js"
     ],
-    "/Teacher_List/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/Teacher_List/page.js"
-    ],
     "/ADashboard/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -35,11 +30,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/AAttendance/page.js"
-    ],
-    "/List_Modules/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/List_Modules/page.js"
     ],
     "/Pre_Enrollment/page": [
       "static/chunks/webpack.js",
@@ -60,6 +50,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/AboutUs/page.js"
+    ],
+    "/List_Modules/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/List_Modules/page.js"
     ]
   }
 }

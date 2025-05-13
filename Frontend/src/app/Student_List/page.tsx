@@ -1,8 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Button, Dialog, TextField } from "@mui/material";
+import {
+  Button,
+  Dialog,
+  TextField,
+  IconButton,
+  InputAdornment,
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 interface Student {
   id: number;
@@ -34,9 +41,12 @@ const Student_List: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [editingPassword, setEditingPassword] = useState<{ [key: number]: boolean }>({});
-  const [passwords, setPasswords] = useState<{ [key: number]: string }>({});
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Added state for confirming password visibility
 
   const fetchStudents = async () => {
     try {
@@ -54,40 +64,69 @@ const Student_List: React.FC = () => {
     fetchStudents();
   }, []);
 
-  const handleEditPassword = (id: number) => {
-    setEditingPassword((prev) => ({ ...prev, [id]: true }));
-  };
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      alert("Please enter both password fields.");
+      return;
+    }
 
-  const handlePasswordChange = (id: number, event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { value } = event.target as HTMLInputElement;
-    setPasswords((prev) => ({ ...prev, [id]: value }));
-  };
+    if (newPassword !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
 
-  const handleSavePassword = async (id: number) => {
-    const newPassword = passwords[id];
-    if (!newPassword) return;
+    if (!selectedStudent?.id) {
+      alert("No student selected.");
+      return;
+    }
 
     try {
-      const response = await fetch("http://localhost/Student_Management_main1/backend/update_student_password.php", {
+      const response = await fetch("http://localhost/Student_Management_main1/backend/cp.php", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, password: newPassword }),
+        body: JSON.stringify({
+          id: selectedStudent.id, // Use the selected student's id
+          new_password: newPassword,
+        }),
       });
 
-      const data = await response.json();
-      if (data.status === "success" || data.message === "Password updated successfully") {
+      const result = await response.json();
+      console.log(result); // Log the result to see the response
+
+      if (response.ok && result.status === "success") {
         alert("Password updated successfully!");
-        setEditingPassword((prev) => ({ ...prev, [id]: false }));
-        fetchStudents(); // 🔄 Refresh the list
+        setOpenPasswordDialog(false);
+        setNewPassword("");
+        setConfirmPassword("");
       } else {
-        alert(`Error: ${data.message}`);
+        alert(`Error: ${result.message || "Something went wrong."}`);
       }
     } catch (error) {
-      console.error("Error updating password:", error);
-      alert("Failed to update password.");
+      console.error("Error changing password:", error);
+      alert("Failed to change password.");
     }
+  };
+
+  const handleViewDetails = (student: Student) => {
+    setSelectedStudent(student);
+    setOpenDialog(true);
+  };
+
+  const openPasswordChangeDialog = (student: Student) => {
+    setSelectedStudent(student);
+    setNewPassword("");
+    setConfirmPassword("");
+    setOpenPasswordDialog(true);
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+
+  const toggleConfirmPasswordVisibility = () => { // Added function to toggle confirm password visibility
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
   const filteredStudents = students.filter((student) =>
@@ -100,11 +139,6 @@ const Student_List: React.FC = () => {
     groups[schedule].push(student);
     return groups;
   }, {});
-
-  const handleViewDetails = (student: Student) => {
-    setSelectedStudent(student);
-    setOpenDialog(true);
-  };
 
   const renderDetails = () => {
     if (!selectedStudent) return null;
@@ -164,7 +198,6 @@ const Student_List: React.FC = () => {
               <thead>
                 <tr className="bg-blue-900 text-white">
                   <th className="border px-4 py-2">Name</th>
-                  <th className="border px-4 py-2">Password</th>
                   <th className="border px-4 py-2">Action</th>
                 </tr>
               </thead>
@@ -173,38 +206,18 @@ const Student_List: React.FC = () => {
                   <tr key={student.id} className="text-center">
                     <td className="border px-4 py-2">{student.full_name}</td>
                     <td className="border px-4 py-2">
-                      {editingPassword[student.id] ? (
-                        <TextField
-                          value={passwords[student.id] || ""}
-                          onChange={(e) => handlePasswordChange(student.id, e)}
-                          size="small"
-                        />
-                      ) : (
-                        student.password
-                      )}
-                    </td>
-                    <td className="border px-4 py-2">
                       <button
                         className="bg-blue-500 text-white py-1 px-4 rounded"
                         onClick={() => handleViewDetails(student)}
                       >
                         View details
                       </button>
-                      {editingPassword[student.id] ? (
-                        <button
-                          className="bg-green-500 text-white py-1 px-4 rounded ml-2"
-                          onClick={() => handleSavePassword(student.id)}
-                        >
-                          Save
-                        </button>
-                      ) : (
-                        <button
-                          className="bg-yellow-500 text-white py-1 px-4 rounded ml-2"
-                          onClick={() => handleEditPassword(student.id)}
-                        >
-                          Change Password
-                        </button>
-                      )}
+                      <button
+                        className="bg-yellow-500 text-white py-1 px-4 rounded ml-2"
+                        onClick={() => openPasswordChangeDialog(student)}
+                      >
+                        Change Password
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -217,13 +230,61 @@ const Student_List: React.FC = () => {
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="md" fullWidth>
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Student Details</h2>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              {renderDetails()}
-            </div>
+            <div className="grid grid-cols-2 gap-4 text-sm">{renderDetails()}</div>
             <div className="mt-6 text-right">
               <Button onClick={() => setOpenDialog(false)} color="primary">
                 Close
               </Button>
+            </div>
+          </div>
+        </Dialog>
+
+        {/* Change Password Dialog */}
+        <Dialog open={openPasswordDialog} onClose={() => setOpenPasswordDialog(false)} maxWidth="sm" fullWidth>
+          <div className="p-6">
+            <h2 className="text-xl font-bold mb-4">Change Password</h2>
+            <div className="space-y-4">
+              <TextField
+                label="New Password"
+                type="password" // New password field is without show/hide toggle
+                fullWidth
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <TextField
+                label="Confirm Password"
+                type={showConfirmPassword ? "text" : "password"}
+                fullWidth
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <button
+                        type="button"
+                        className="text-blue-600 font-semibold"
+                        onClick={toggleConfirmPasswordVisibility}
+                      >
+                        {showConfirmPassword ? "Hide" : "Show"}
+                      </button>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </div>
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                className="bg-gray-400 text-white px-4 py-2 rounded"
+                onClick={() => setOpenPasswordDialog(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-blue-600 text-white px-6 py-2 rounded"
+                onClick={handleChangePassword}
+              >
+                Update Password
+              </button>
             </div>
           </div>
         </Dialog>

@@ -1,147 +1,152 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import StudentSidebar from "@/components/studentsidebar";
+import { Dialog } from "@headlessui/react";
+import axios from "axios";  // Add this import
 
-const My_Attendance = () => {
-  const [attendanceRecords, setAttendanceRecords] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
-  const [selectedStudent, setSelectedStudent] = useState<string>("");
-  const printRef = useRef<HTMLDivElement>(null);
+const StudentAttendanceHistory = () => {
+  const [students, setStudents] = useState<{ id: number; full_name: string }[]>([]);
+  const [attendanceHistory, setAttendanceHistory] = useState<{ date: string; status: string; reason: string }[]>([]);
+  const [selectedStudentName, setSelectedStudentName] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchStudents(); // Fetch students on initial load
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedEmail) {
+      fetchStudentData(storedEmail);
+    }
   }, []);
 
-  // Fetch students from backend or use dummy data
-  const fetchStudents = async () => {
-    try {
-      const response = await fetch(`http://localhost/Student_Management_main1/backend/get_all_students.php`);
-      if (response.ok) {
-        const data = await response.json();
-        setStudents(data); // Assuming data contains a list of student names
-      } else {
-        console.error("Error fetching students:", response.status);
-        setStudents(generateDummyStudents()); // Use dummy data if fetch fails
-      }
-    } catch (error) {
-      console.error("Error fetching students:", error);
-      setStudents(generateDummyStudents()); // Use dummy data if there's an error
-    }
-  };
-
-  // Generate dummy students data
-  const generateDummyStudents = () => {
-    return [
-      { id: "1", name: "John Doe" },
-      { id: "2", name: "Jane Smith" },
-      { id: "3", name: "Michael Johnson" },
-      { id: "4", name: "Emily Davis" },
-      { id: "5", name: "Daniel Lee" }
-    ];
-  };
-
-  // Fetch attendance records for selected student or use dummy data
-  const fetchAttendanceRecords = async (userId: string) => {
+  const fetchStudentData = async (email: string) => {
     try {
       const response = await fetch(
-        `http://localhost/Student_Management_main1/backend/get_attendance.php?id=${userId}`
+        `http://localhost/Student_Management_main1/backend/get_id.php?email=${encodeURIComponent(email)}`
       );
       if (response.ok) {
         const data = await response.json();
-        setAttendanceRecords(data);
+        setStudents(data);
       } else {
-        console.error("Error fetching attendance records:", response.status);
-        setAttendanceRecords(generateDummyAttendance()); // Use dummy data if fetch fails
+        console.error("Error fetching student data:", response.status);
       }
     } catch (error) {
-      console.error("Error fetching attendance records:", error);
-      setAttendanceRecords(generateDummyAttendance()); // Use dummy data if there's an error
+      console.error("Error fetching student data:", error);
     }
   };
 
-  // Generate dummy attendance records data
-  const generateDummyAttendance = () => {
-    return [
-      { id: "1", attendance_date: "2025-04-01", status: "Present", notes: "On time" },
-      { id: "2", attendance_date: "2025-04-02", status: "Absent", notes: "Sick" },
-      { id: "3", attendance_date: "2025-04-03", status: "Present", notes: "On time" },
-      { id: "4", attendance_date: "2025-04-04", status: "Absent", notes: "Vacation" },
-      { id: "5", attendance_date: "2025-04-05", status: "Present", notes: "On time" },
-      { id: "6", attendance_date: "2025-04-06", status: "Present", notes: "On time" },
-      { id: "7", attendance_date: "2025-04-07", status: "Absent", notes: "Sick" },
-      { id: "8", attendance_date: "2025-04-08", status: "Present", notes: "On time" },
-      { id: "9", attendance_date: "2025-04-09", status: "Present", notes: "On time" },
-      { id: "10", attendance_date: "2025-04-10", status: "Absent", notes: "Appointment" }
-    ];
-  };
-
-  // Handle student selection change
-  const handleStudentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const studentId = e.target.value;
-    setSelectedStudent(studentId);
-    fetchAttendanceRecords(studentId); // Fetch attendance for the selected student
+  const handleViewAttendance = async (studentName: string) => {
+    const trimmedName = studentName.trim();
+  
+    if (!trimmedName) {
+      console.error("Student name is empty or invalid.");
+      return;
+    }
+  
+    try {
+      const response = await axios.get(
+        "http://localhost/Student_Management_main1/backend/get_attendance_history.php",
+        {
+          params: { name: trimmedName },
+        }
+      );
+  
+      const data = response.data;
+  
+      if (Array.isArray(data)) {
+        setAttendanceHistory(data);
+      } else if (data?.error) {
+        console.error("Backend error:", data.error);
+      } else {
+        console.error("Unexpected response format:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+    }
   };
 
   return (
     <div className="flex">
       <StudentSidebar children={undefined} />
-
-      <div className="flex-1 p-6">
-        <header className="text-center mb-8">
-          <h1 className="text-4xl font-bold">Attendance Record</h1>
-        </header>
-
-        {/* Student Selection ComboBox */}
-        <div className="mb-6 text-center">
-          <label htmlFor="student" className="text-lg font-semibold">Select Student: </label>
-          <select
-            id="student"
-            value={selectedStudent}
-            onChange={handleStudentChange}
-            className="ml-4 p-2 border rounded-md"
-          >
-            <option value="">-- Choose a Student --</option>
+      <div className="flex-1 p-4 overflow-auto">
+        <h3 className="text-lg font-bold mt-0 mb-2">Student Attendance History</h3>
+        <table className="w-full border">
+          <thead>
+            <tr className="bg-gray-800 text-white">
+              <th className="p-2 border">Name</th>
+              <th className="p-2 border">Action</th>
+            </tr>
+          </thead>
+          <tbody>
             {students.map((student) => (
-              <option key={student.id} value={student.id}>
-                {student.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Attendance Table */}
-        <div className="overflow-x-auto">
-          <table className="table-auto w-full border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-blue-900 text-white">
-                <th className="border border-gray-300 px-4 py-2">Date</th>
-                <th className="border border-gray-300 px-4 py-2">Present/Absent</th>
-                <th className="border border-gray-300 px-4 py-2">Reason/Notes</th>
+              <tr key={student.id}>
+                <td className="p-2 border text-center">{student.full_name}</td>
+                <td className="p-2 border text-center">
+                  <button
+                    className="px-3 py-1 bg-blue-500 text-white rounded"
+                    onClick={() => {
+                      setSelectedStudentName(student.full_name);
+                      setIsDialogOpen(true);
+                      handleViewAttendance(student.full_name);
+                    }}
+                  >
+                    View
+                  </button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {attendanceRecords.length > 0 ? (
-                attendanceRecords.slice(0, 10).map((record) => (
-                  <tr key={record.id} className="text-center">
-                    <td className="border border-gray-300 px-4 py-2">{record.attendance_date}</td>
-                    <td className="border border-gray-300 px-4 py-2">{record.status}</td>
-                    <td className="border border-gray-300 px-4 py-2">{record.notes || "—"}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={3} className="border border-gray-300 px-4 py-8 text-center text-gray-500">
-                    No attendance records found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
+
+        {/* Attendance History Dialog */}
+        <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} className="relative z-50">
+          <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+          <div className="fixed inset-0 flex items-center justify-center p-4">
+            <Dialog.Panel className="w-full max-w-md rounded bg-white p-6 shadow-lg">
+              <Dialog.Title className="text-lg font-semibold mb-2">
+                Attendance History of {selectedStudentName}
+              </Dialog.Title>
+
+              <div className="overflow-y-auto max-h-80">
+                <table className="w-full border mb-4">
+                  <thead>
+                    <tr className="bg-gray-200">
+                      <th className="p-2 border">Date</th>
+                      <th className="p-2 border">Status</th>
+                      <th className="p-2 border">Reason</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendanceHistory.length > 0 ? (
+                      attendanceHistory.map((record, index) => (
+                        <tr key={index}>
+                          <td className="p-2 border">{record.date}</td>
+                          <td className="p-2 border">{record.status}</td>
+                          <td className="p-2 border">{record.reason || "—"}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center p-2">
+                          No attendance records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+
+                {attendanceHistory.length > 0 && (
+                  <div className="text-sm font-medium text-gray-700">
+                    <p>Total Present: {attendanceHistory.filter(r => r.status === "Present").length}</p>
+                    <p>Total Absent: {attendanceHistory.filter(r => r.status === "Absent").length}</p>
+                  </div>
+                )}
+              </div>
+            </Dialog.Panel>
+          </div>
+        </Dialog>
       </div>
     </div>
   );
 };
 
-export default My_Attendance;
+export default StudentAttendanceHistory;

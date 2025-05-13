@@ -48,33 +48,34 @@ if ($result->num_rows > 0) {
     $user = $result->fetch_assoc();
     
     // Validate password directly if it's not hashed
-    if ($password === $user['password']) {
-        // 🎉 Success, send response
-        $role = $user['role'] ?? 'parent'; // Default to 'parent' if no role is set
+if (password_verify($password, $user['password'])) {
+    // 🎉 Success, send response
+    $role = $user['role'] ?? 'parent'; // Default to 'parent' if no role is set
 
-        // Handle different roles
-        if ($role === 'super_admin' || $role === 'admin' || $role === 'parent') {
-            echo json_encode([
-                "status" => "success",
-                "role" => $role,
-                "user" => [
-                    "id" => $user['id'],
-                    "email" => $user['email'],
-                    "type" => 'users' // Always 'users' as it was found here
-                ]
-            ]);
-        } else {
-            echo json_encode([
-                "status" => "error",
-                "message" => "Invalid role assigned."
-            ]);
-        }
+    // Handle different roles
+    if ($role === 'super_admin' || $role === 'admin' || $role === 'parent') {
+        echo json_encode([
+            "status" => "success",
+            "role" => $role,
+            "user" => [
+                "id" => $user['id'],
+                "email" => $user['email'],
+                "type" => 'users'
+            ]
+        ]);
     } else {
         echo json_encode([
             "status" => "error",
-            "message" => "Invalid credentials."
+            "message" => "Invalid role assigned."
         ]);
     }
+} else {
+    echo json_encode([
+        "status" => "error",
+        "message" => "Invalid credentials."
+    ]);
+}
+
 } else {
     echo json_encode([
         "status" => "error",

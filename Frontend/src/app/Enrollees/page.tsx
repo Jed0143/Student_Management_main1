@@ -13,10 +13,10 @@ import Sidebar from "@/components/Sidebar";
 interface Student {
   id: number;
   full_name: string;
-  schedule: string;
   email: string;
   gender: string;
   birthday: string;
+  age: number;
   first_language: string;
   second_language: string;
   guardian: string;
@@ -122,9 +122,9 @@ const EnrolleesList: React.FC = () => {
       <>
         <p><strong>Name:</strong> {studentDetails.full_name}</p>
         <p><strong>Email:</strong> {studentDetails.email}</p>
-        <p><strong>Schedule:</strong> {studentDetails.schedule}</p>
         <p><strong>Gender:</strong> {studentDetails.gender}</p>
         <p><strong>Birthday:</strong> {studentDetails.birthday}</p>
+        <p><strong>Age:</strong> {studentDetails.age}</p>
         <p><strong>First Language:</strong> {studentDetails.first_language}</p>
         <p><strong>Second Language:</strong> {studentDetails.second_language}</p>
         <p><strong>Guardian:</strong> {studentDetails.guardian}</p>

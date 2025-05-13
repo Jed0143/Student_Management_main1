@@ -12,13 +12,13 @@ if (!$input || !isset($input['id'])) {
     exit();
 }
 
-require_once("config.php"); // Ensure this file sets up $conn (MySQLi)
+require_once("db_connection.php");
 
 $id = $conn->real_escape_string($input['id']);
 
 // Define all fields (sanitize inputs)
-$name = $conn->real_escape_string($input['name'] ?? '');
-$gender = $conn->real_escape_string($input['Gender'] ?? '');
+$full_name = $conn->real_escape_string($input['full_name'] ?? '');
+$gender = $conn->real_escape_string($input['gender'] ?? '');
 $birthday = $conn->real_escape_string($input['birthday'] ?? '');
 $age = (int)($input['age'] ?? 0);
 $date = $conn->real_escape_string($input['date'] ?? '');
@@ -42,8 +42,8 @@ $email = $conn->real_escape_string($input['email'] ?? '');
 
 // Update query
 $sql = "UPDATE pre_enrollment SET 
-    name='$name',
-    Gender='$gender',
+    full_name='$full_name',
+    gender='$gender',
     birthday='$birthday',
     age=$age,
     date='$date',

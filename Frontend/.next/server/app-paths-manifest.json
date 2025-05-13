@@ -1,9 +1,7 @@
 {
-  "/Enrollees/page": "app/Enrollees/page.js",
-  "/Student_List/page": "app/Student_List/page.js",
-  "/ADashboard/page": "app/ADashboard/page.js",
+  "/AAttendance/page": "app/AAttendance/page.js",
+  "/Student_Profile/page": "app/Student_Profile/page.js",
   "/page": "app/page.js",
-  "/Teacher_List/page": "app/Teacher_List/page.js",
-  "/List_Modules/page": "app/List_Modules/page.js",
-  "/AAttendance/page": "app/AAttendance/page.js"
+  "/Pre_Enrollment/page": "app/Pre_Enrollment/page.js",
+  "/AboutUs/page": "app/AboutUs/page.js"
 }

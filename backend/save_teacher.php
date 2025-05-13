@@ -48,7 +48,10 @@ if (!$name || !$email || !$passwordRaw) {
     exit;
 }
 
-// Prepare SQL query to insert new teacher
+// Hash the password
+$hashedPassword = password_hash($passwordRaw, PASSWORD_BCRYPT);
+
+// Prepare SQL query to insert new user
 $stmt = $conn->prepare("INSERT INTO users (full_name, email, password, role) VALUES (?, ?, ?, ?)");
 
 if (!$stmt) {
@@ -56,7 +59,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param("ssss", $name, $email, $passwordRaw, $role); // Using plain password, no hashing
+$stmt->bind_param("ssss", $name, $email, $hashedPassword, $role); // Using hashed password
 
 // Execute the query
 if (!$stmt->execute()) {

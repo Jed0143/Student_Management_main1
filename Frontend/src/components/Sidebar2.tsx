@@ -8,11 +8,9 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [loggedInEmail, setLoggedInEmail] = useState("");
-  const [loggedInPassword, setLoggedInPassword] = useState("");
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -39,11 +37,31 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
   }, [isSidebarVisible]);
 
   useEffect(() => {
-    const email = localStorage.getItem("userEmail") || sessionStorage.getItem("userEmail");
-    const password = localStorage.getItem("userPassword") || sessionStorage.getItem("userPassword");
+    if (typeof window !== "undefined") {
+      const email = localStorage.getItem("userEmail");
+      const role = localStorage.getItem("userRole");
+      setUserEmail(email);
+      setUserRole(role);
 
-    if (email) setLoggedInEmail(email);
-    if (password) setLoggedInPassword(password);
+      if (email) {
+        fetch(
+          "http://localhost/Student_Management_main1/backend/myid.php?email=" +
+            encodeURIComponent(email)
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.userId) {
+              setUserId(data.userId);
+              localStorage.setItem("userId", data.userId);
+            } else {
+              console.error("User ID not found:", data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user ID:", error);
+          });
+      }
+    }
   }, []);
 
   const menuItems = [
@@ -53,8 +71,8 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("userToken");
-    sessionStorage.removeItem("userToken");
+    localStorage.clear();
+    sessionStorage.clear();
     router.push("/");
   };
 
@@ -87,7 +105,17 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
             className="rounded-full transition-all duration-300"
           />
           {isSidebarVisible && (
-            <span className="mt-2 text-lg font-semibold text-white">TEACHER</span>
+            <div className="text-center mt-2">
+              {userEmail && (
+                <span className="text-sm font-semibold text-white block">{userEmail}</span>
+              )}
+              {userId && (
+                <span className="text-xs text-gray-300 block">{userId}</span>
+              )}
+              {userRole && (
+                <span className="text-xs text-yellow-400 block uppercase">{userRole}</span>
+              )}
+            </div>
           )}
         </div>
 

@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation"; // Import useRouter
 import StudentSidebar from "@/components/studentsidebar";
 
+
+
 const PreEnrollment = () => {
   const [formData, setFormData] = useState({
-    name: "",
-    Gender: "",
+    full_name: "", // Added full_name property
+    gender: "",
     birthday: "",
     age: "",
     registered: "",
@@ -31,8 +33,6 @@ const PreEnrollment = () => {
     emergencyWork: "",
     date: new Date().toISOString().split("T")[0],
     email: "",
-    password: "",
-    confirmPassword: "",
   });
 
   const [slotsRemaining, setSlotsRemaining] = useState<number | null>(null);
@@ -41,6 +41,15 @@ const PreEnrollment = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+useEffect(() => {
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedEmail) {
+      setFormData((prevData) => ({
+        ...prevData,
+        email: storedEmail,
+      }));
+    }
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
@@ -51,8 +60,7 @@ const PreEnrollment = () => {
     } else {
       let newValue = value;
   
-      if (name === "childName") {
-        // Only letters and spaces
+      if (name === "full_name") {
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
   
@@ -186,25 +194,15 @@ const PreEnrollment = () => {
     setFormData((prevData) => ({ ...prevData, age: age.toString() }));
   };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-  
-    // ✅ Do validation BEFORE building FormData
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+
+    // Make sure all required fields are filled
+    if (!formData.full_name || !formData.gender || !formData.birthday || !formData.age || !formData.address) {
+      alert("Please fill out all required fields.");
       return;
     }
-  
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      alert("Please enter a valid email.");
-      return;
-    }
-  
-    if (formData.password.length < 6) {
-      alert("Password should be at least 6 characters.");
-      return;
-    }
-  
+
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       // Ensure the value is not null or undefined before appending
@@ -212,23 +210,23 @@ const PreEnrollment = () => {
         formDataToSend.append(key, value as Blob | string);
       }
     });
-  
+
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/save_enrollment.php", {
         method: "POST",
         body: formDataToSend,
       });
-  
+
       const text = await response.text(); // Get raw text response
       console.log("Raw response:", text);
-  
+
       try {
         const data = JSON.parse(text);
         console.log("Server JSON:", data);
-  
+
         if (data.status === "success") {
           alert("Enrollment saved successfully!");
-          router.push("/"); // Redirect to homepage
+          router.push("/Pre_Enrollment"); // Redirect to homepage
         } else {
           alert("Error: " + data.message);
         }
@@ -239,23 +237,37 @@ const PreEnrollment = () => {
     } catch (err) {
       alert("Submission failed.");
     }
-  };  
+};
+
 
   return (
     <div className="flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-blue-600 to-blue-900">
-      <StudentSidebar children={undefined} />
+      <StudentSidebar>{null}</StudentSidebar>
       <div className="w-full max-w-4xl px-8 py-10 bg-white rounded-lg shadow-2xl relative">
         <h1 className="text-4xl font-extrabold text-blue-900 mb-8 text-center">REGISTRATION FORM FOR PARENT</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+            <label className="block font-semibold">Email</label>
+            <input
+              type="text"
+              name="email"
+              placeholder="Enter your Email"
+              className="w-1/2 p-2 border rounded"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              disabled
+            />
+          </div>
           <div>
             <label className="block font-semibold">Name of Child</label>
             <input
               type="text"
-              name="name"
+              name="full_name"
               placeholder="First Name, Middle Name, Last Name(ex: Juan Santos Cruz)"
               className="w-full p-2 border rounded"
-              value={formData.name}
+              value={formData.full_name}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
@@ -266,9 +278,9 @@ const PreEnrollment = () => {
             <div>
               <label className="block font-semibold">Gender</label>
               <select
-                name="Gender"
+                name="gender"
                 className="w-full p-2 border rounded"
-                value={formData.Gender}
+                value={formData.gender}
                 onChange={handleChange}
                 required
                 disabled={isFormDisabled}
@@ -310,7 +322,7 @@ const PreEnrollment = () => {
               <input
                 type="text"
                 name="address"
-                placeholder="Enter Address"
+                placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
                 className="w-full p-2 border rounded"
                 value={formData.address}
                 onChange={handleChange}
@@ -370,7 +382,7 @@ const PreEnrollment = () => {
               type="text"
               name="motherAddress"
               className="w-full p-2 border rounded"
-              placeholder="Enter Address"
+              placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
               value={formData.motherAddress}
               onChange={handleChange}
               required
@@ -396,7 +408,7 @@ const PreEnrollment = () => {
               type="text"
               name="motherWork"
               className="w-full p-2 border rounded"
-              placeholder="Work"
+              placeholder="Enter Mother Work"
               value={formData.motherWork}
               onChange={handleChange}
               required
@@ -426,7 +438,7 @@ const PreEnrollment = () => {
               type="text"
               name="fatherAddress"
               className="w-full p-2 border rounded"
-              placeholder="Enter Address"
+              placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
               value={formData.fatherAddress}
               onChange={handleChange}
               required
@@ -452,7 +464,7 @@ const PreEnrollment = () => {
               type="text"
               name="fatherWork"
               className="w-full p-2 border rounded"
-              placeholder="Work"
+              placeholder="Enter Father Work"
               value={formData.fatherWork}
               onChange={handleChange}
               required
@@ -485,7 +497,7 @@ const PreEnrollment = () => {
               type="text"
               name="guardian"
               className="w-full p-2 border rounded"
-              placeholder="Guardian Name"
+              placeholder="First Name, Middle Name, Last Name(ex: Juan Santos Cruz)"
               value={formData.guardian}
               onChange={handleChange}
               required
@@ -538,7 +550,7 @@ const PreEnrollment = () => {
               type="text"
               name="emergencyName"
               className="w-full p-2 border rounded"
-              placeholder="Emergency Contact Name"
+              placeholder="Emergency First Name, Middle Name, Last Name(ex: Juan Santos Cruz) Name"
               value={formData.emergencyName}
               onChange={handleChange}
               required

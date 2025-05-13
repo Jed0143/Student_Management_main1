@@ -1,32 +1,32 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { useReactToPrint } from "react-to-print";
+import React, { useEffect, useState } from "react";
 import StudentSidebar from "@/components/studentsidebar";
 import { Dialog } from "@headlessui/react";
 
 const My_Profile = () => {
-  const [student, setStudent] = useState<any>(null);
-  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [students, setStudents] = useState<any[]>([]);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [viewData, setViewData] = useState<any>(null);
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const printRef = useRef<HTMLDivElement>(null);
   const [editData, setEditData] = useState<any>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("userId");
-    if (stored) {
-      const userId = JSON.parse(stored);
-      fetchStudentData(userId);
+    const storedEmail = localStorage.getItem("userEmail");
+    if (storedEmail) {
+      fetchStudentData(storedEmail);
     }
   }, []);
 
-  const fetchStudentData = async (userId: string) => {
+  const fetchStudentData = async (email: string) => {
     try {
-      const response = await fetch(`http://localhost/Student_Management_main1/backend/get_id.php?id=${userId}`);
+      const response = await fetch(
+        `http://localhost/Student_Management_main1/backend/get_id.php?email=${encodeURIComponent(email)}`
+      );
       if (response.ok) {
         const data = await response.json();
-        setStudent(data);
-        setEditData(data);
+        setStudents(data);
       } else {
         console.error("Error fetching student data:", response.status);
       }
@@ -35,155 +35,366 @@ const My_Profile = () => {
     }
   };
 
-  const handlePrint = useReactToPrint({
-    content: () => printRef.current,
-    documentTitle: "Student_Profile",
-    onAfterPrint: () => setIsPrintModalOpen(false),
-  });
+  const handleView = (student: any) => {
+    setViewData(student);
+    setIsViewModalOpen(true);
+  };
 
-  const handleEdit = () => {
+  const handleEdit = (student: any) => {
+    setEditData({ ...student });
     setIsEditModalOpen(true);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditData({
-      ...editData,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const handleSave = async () => {
     try {
-      const response = await fetch(`http://localhost/Student_Management_main1/backend/update_student.php`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(editData),
-      });
+      const response = await fetch(
+        "http://localhost/Student_Management_main1/backend/update_student_profile.php",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editData),
+        }
+      );
+
       if (response.ok) {
-        const updatedData = await response.json();
-        setStudent(updatedData);
+        alert("Student details updated!");
         setIsEditModalOpen(false);
+        fetchStudentData(editData.email); // Refresh data
       } else {
-        console.error("Error saving student data:", response.status);
+        alert("Failed to update student details.");
       }
     } catch (error) {
-      console.error("Error saving student data:", error);
+      console.error("Update error:", error);
     }
   };
 
   return (
     <div className="flex min-h-screen">
-      <StudentSidebar children={undefined} />
+      <StudentSidebar>{null}</StudentSidebar>
 
-      <div className="flex-1 p-6 bg-cover bg-center min-h-screen bg-blue-200">
+      <div className="flex-1 p-6 bg-blue-200 bg-cover bg-center">
         <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-blue-900">My Profile</h1>
         </header>
 
-        {student ? (
-          <>
-            {/* Student Profile (Printable) */}
-            <div ref={printRef} className="bg-white bg-opacity-90 p-8 rounded-lg shadow-md max-w-4xl mx-auto">
-              <div className="grid grid-cols-2 gap-6 text-gray-700 text-lg">
-                <div>
-                  <p><strong>Full Name:</strong> {student.name}</p>
-                  <p><strong>Gender:</strong> {student.Gender}</p>
-                  <p><strong>Birthdate:</strong> {student.birthday}</p>
-                  <p><strong>Age:</strong> {student.age}</p>
-                  <p><strong>Date Registered:</strong> {student.date}</p>
-                  <p><strong>Address:</strong> {student.address}</p>
-                  <p><strong>First Language:</strong> {student.first_language}</p>
-                  <p><strong>Second Language:</strong> {student.second_language}</p>
+        <div className="bg-white shadow border max-w-3xl mx-auto">
+          <table className="w-full table text-left">
+            <thead>
+              <tr className="text-blue-800 border">
+                <th className="px-4 py-2 border">Full Name</th>
+                <th className="px-4 py-2 border">Schedule</th>
+                <th className="px-4 py-2 border">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((student, index) => (
+                <tr key={index} className="border-b hover:bg-blue-50">
+                  <td className="px-4 py-2 border">{student.full_name}</td>
+                  <td className="px-4 py-2 border">{student.schedule || "N/A"}</td>
+                    <td className="px-4 py-2 border flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleView(student)}
+                        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                      >
+                        View
+                      </button>
+                      <button
+                        onClick={() => handleEdit(student)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm"
+                      >
+                        Edit Details
+                      </button>
+                    </td>
+                </tr>
+              ))}
+              {students.length === 0 && (
+                <tr>
+                  <td colSpan={3} className="text-center py-4 text-blue-800">
+                    Loading profile...
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* View Modal */}
+        <Dialog
+          open={isViewModalOpen}
+          onClose={() => setIsViewModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        >
+          <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-auto relative">
+            <img src="/logo.jpg" alt="Logo" className="absolute top-4 right-4 h-24 w-24" />
+            <Dialog.Title className="text-2xl font-semibold text-blue-900 mb-6">
+              Student Profile
+            </Dialog.Title>
+
+            {viewData && (
+              <div className="space-y-4 text-sm text-gray-700">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p><strong>Full Name:</strong> {viewData.full_name}</p>
+                    <p><strong>Gender:</strong> {viewData.gender}</p>
+                    <p><strong>Birthdate:</strong> {viewData.birthday}</p>
+                    <p><strong>Age:</strong> {viewData.age}</p>
+                    <p><strong>Date Registered:</strong> {viewData.date}</p>
+                    <p><strong>Address:</strong> {viewData.address}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p><strong>First Language:</strong> {viewData.first_language}</p>
+                    <p><strong>Second Language:</strong> {viewData.second_language}</p>
+                  </div>
                 </div>
-                <div>
-                  <p><strong>Guardian Name:</strong> {student.guardian}</p>
-                  <p><strong>Guardian Contact:</strong> {student.guardian_contact}</p>
-                  <p><strong>Guardian Relationship:</strong> {student.guardian_relationship}</p>
-                  <p><strong>Mother's Name:</strong> {student.mother_name}</p>
-                  <p><strong>Mother's Address:</strong> {student.mother_address}</p>
-                  <p><strong>Mother's Work:</strong> {student.mother_work}</p>
-                  <p><strong>Mother's Contact:</strong> {student.mother_contact}</p>
-                  <p><strong>Father's Name:</strong> {student.fathers_name}</p>
-                  <p><strong>Father's Address:</strong> {student.father_address}</p>
-                  <p><strong>Father's Work:</strong> {student.father_work}</p>
-                  <p><strong>Father's Contact:</strong> {student.father_contact}</p>
-                  <p><strong>Emergency Name:</strong> {student.emergency_name}</p>
-                  <p><strong>Emergency Contact:</strong> {student.emergency_contact}</p>
-                  <p><strong>Email:</strong> {student.email}</p>
-                  <p><strong>Schedule:</strong> {student.schedule}</p>
+                <hr className="my-4 border-gray-300" />
+                <div className="space-y-1">
+                  <p><strong>Mother's Name:</strong> {viewData.mother_name}</p>
+                  <p><strong>Father's Name:</strong> {viewData.father_name}</p>
+                  <p><strong>Emergency Name:</strong> {viewData.emergency_name}</p>
+                  <p><strong>Emergency Contact:</strong> {viewData.emergency_contact}</p>
+                  <p><strong>Mother's Work:</strong> {viewData.mother_work}</p>
+                  <p><strong>Father's Work:</strong> {viewData.father_work}</p>
+                  <p><strong>Mother's Contact:</strong> {viewData.mother_contact}</p>
+                  <p><strong>Father's Contact:</strong> {viewData.father_contact}</p>
+                </div>
+                <hr className="my-4 border-gray-300" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p><strong>Guardian Name:</strong> {viewData.guardian}</p>
+                    <p><strong>Guardian Contact:</strong> {viewData.guardian_contact}</p>
+                    <p><strong>Guardian Relationship:</strong> {viewData.guardian_relationship}</p>
+                  </div>
+                </div>
+                <hr className="my-4 border-gray-300" />
+                <div className="space-y-1">
+                  <p><strong>Email:</strong> {viewData.email}</p>
+                  <p><strong>Schedule:</strong> {viewData.schedule || "N/A"}</p>
+                </div>
+                <div className="fixed bottom-10 left-1/2 transform -translate-x-1/2">
+                  <button
+                    onClick={() => window.print()}
+                    className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                    title="Print (Fn + P)"
+                  >
+                    Print
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div className="mt-8 flex justify-center gap-4 print:hidden">
-              <button
-                onClick={handleEdit}
-                className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
-              >
-                Edit Details
-              </button>
-              <button
-                onClick={() => {
-                  setIsPrintModalOpen(true);
-                  handlePrint();
-                }}
-                className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
-              >
-                Print Profile
-              </button>
-            </div>
-          </>
-        ) : (
-          <p className="text-center">Loading profile...</p>
-        )}
+            )}
+          </Dialog.Panel>
+        </Dialog>
 
         {/* Edit Modal */}
-        <Dialog open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-  <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[80vh] overflow-y-auto">
-    <Dialog.Title className="text-xl font-bold mb-4">Edit Profile</Dialog.Title>
-    <div className="grid grid-cols-2 gap-4">
-      {editData && Object.entries(editData).map(([key, value]) => (
-        typeof value === "string" &&
-        key !== "role" && 
-        key !== "schedule" &&
-        key !== "password" && 
-        key !== "confirm_password" && 
-        key !== "date" && (
-          <div key={key} className="flex flex-col">
-            <label htmlFor={key} className="font-medium text-gray-700">{key.replace("_", " ").toUpperCase()}</label>
-            <input
-              id={key}
-              type="text"
-              name={key}
-              value={value}
-              onChange={handleChange}
-              placeholder={`Enter ${key}`}
-              className="border p-2 rounded mt-2"
-            />
-          </div>
-        )
-      ))}
-    </div>
-    <div className="flex justify-end mt-6 gap-4">
-      <button
-        onClick={() => setIsEditModalOpen(false)}
-        className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-      >
-        Cancel
-      </button>
-      <button
-        onClick={handleSave}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-      >
-        Save
-      </button>
-    </div>
-  </Dialog.Panel>
-</Dialog>
+        <Dialog
+          open={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+        >
+<Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-auto relative">
+  <Dialog.Title className="text-2xl font-semibold text-yellow-700 mb-6">
+    Edit Student Details
+  </Dialog.Title>
 
+  {editData && (
+    <form onSubmit={handleEditSubmit} className="space-y-4 text-sm text-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label>Full Name:</label>
+          <input
+            type="text"
+            value={editData.full_name}
+            onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
 
+          <label>Gender:</label>
+          <input
+            type="text"
+            value={editData.gender}
+            onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Birthdate:</label>
+          <input
+            type="date"
+            value={editData.birthday}
+            onChange={(e) => setEditData({ ...editData, birthday: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Age:</label>
+          <input
+            type="number"
+            value={editData.age}
+            onChange={(e) => setEditData({ ...editData, age: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Date Registered:</label>
+          <input
+            type="date"
+            value={editData.date}
+            onChange={(e) => setEditData({ ...editData, date: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Address:</label>
+          <input
+            type="text"
+            value={editData.address}
+            onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label>First Language:</label>
+          <input
+            type="text"
+            value={editData.first_language}
+            onChange={(e) => setEditData({ ...editData, first_language: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Second Language:</label>
+          <input
+            type="text"
+            value={editData.second_language}
+            onChange={(e) => setEditData({ ...editData, second_language: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+      </div>
+
+      <hr className="my-4" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label>Mother's Name:</label>
+          <input
+            type="text"
+            value={editData.mother_name}
+            onChange={(e) => setEditData({ ...editData, mother_name: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Mother's Work:</label>
+          <input
+            type="text"
+            value={editData.mother_work}
+            onChange={(e) => setEditData({ ...editData, mother_work: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Mother's Contact:</label>
+          <input
+            type="text"
+            value={editData.mother_contact}
+            onChange={(e) => setEditData({ ...editData, mother_contact: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label>Father's Name:</label>
+          <input
+            type="text"
+            value={editData.father_name}
+            onChange={(e) => setEditData({ ...editData, father_name: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Father's Work:</label>
+          <input
+            type="text"
+            value={editData.father_work}
+            onChange={(e) => setEditData({ ...editData, father_work: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Father's Contact:</label>
+          <input
+            type="text"
+            value={editData.father_contact}
+            onChange={(e) => setEditData({ ...editData, father_contact: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+      </div>
+
+      <hr className="my-4" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <label>Guardian Name:</label>
+          <input
+            type="text"
+            value={editData.guardian}
+            onChange={(e) => setEditData({ ...editData, guardian: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Guardian Contact:</label>
+          <input
+            type="text"
+            value={editData.guardian_contact}
+            onChange={(e) => setEditData({ ...editData, guardian_contact: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Guardian Relationship:</label>
+          <input
+            type="text"
+            value={editData.guardian_relationship}
+            onChange={(e) => setEditData({ ...editData, guardian_relationship: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label>Emergency Name:</label>
+          <input
+            type="text"
+            value={editData.emergency_name}
+            onChange={(e) => setEditData({ ...editData, emergency_name: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+
+          <label>Emergency Contact:</label>
+          <input
+            type="text"
+            value={editData.emergency_contact}
+            onChange={(e) => setEditData({ ...editData, emergency_contact: e.target.value })}
+            className="w-full border px-2 py-1 rounded"
+          />
+        </div>
+      </div>
+
+      <div className="flex justify-end space-x-2 mt-6">
+        <button
+          type="button"
+          onClick={() => setIsEditModalOpen(false)}
+          className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+        >
+          Save Changes
+        </button>
+      </div>
+    </form>
+  )}
+</Dialog.Panel>
+
+        </Dialog>
       </div>
     </div>
   );
