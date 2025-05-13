@@ -1,7 +1,7 @@
 {
-  "/AAttendance/page": "app/AAttendance/page.js",
-  "/Student_Profile/page": "app/Student_Profile/page.js",
   "/page": "app/page.js",
+  "/Student_Profile/page": "app/Student_Profile/page.js",
+  "/AboutUs/page": "app/AboutUs/page.js",
   "/Pre_Enrollment/page": "app/Pre_Enrollment/page.js",
-  "/AboutUs/page": "app/AboutUs/page.js"
+  "/AAttendance/page": "app/AAttendance/page.js"
 }
