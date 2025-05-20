@@ -6,7 +6,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions
+  DialogActions,
+  TextField
 } from '@mui/material';
 import Sidebar from "@/components/Sidebar";
 
@@ -42,6 +43,9 @@ const EnrolleesList: React.FC = () => {
   const [studentDetails, setStudentDetails] = useState<Student | null>(null);
   const [openSelectScheduleDialog, setOpenSelectScheduleDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [schoolYearStart, setSchoolYearStart] = useState('');
+  const [schoolYearEnd, setSchoolYearEnd] = useState('');
+
 
   useEffect(() => {
     const fetchStudents = async () => {
@@ -77,6 +81,8 @@ const EnrolleesList: React.FC = () => {
           body: JSON.stringify({
             id: selectedStudent.id,
             status: "accept",
+            school_year_start: schoolYearStart,
+            school_year_end: schoolYearEnd,
           }),
         });
 
@@ -213,29 +219,46 @@ const EnrolleesList: React.FC = () => {
         </Dialog>
 
         {/* Accept/Deny Dialog */}
-        <Dialog open={openSelectScheduleDialog} onClose={() => setOpenSelectScheduleDialog(false)}>
-          <DialogTitle>Accept Enrollee</DialogTitle>
-          <DialogContent>
-            <p>Are you sure you want to accept or deny this enrollee?</p>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => handleSelectSchedule("deny")}
-              color="error"
-              disabled={isProcessing}
-            >
-              Deny
-            </Button>
-            <Button
-              onClick={() => handleSelectSchedule("accept")}
-              color="success"
-              variant="contained"
-              disabled={isProcessing}
-            >
-              Accept
-            </Button>
-          </DialogActions>
-        </Dialog>
+          <Dialog open={openSelectScheduleDialog} onClose={() => setOpenSelectScheduleDialog(false)}>
+            <DialogTitle>Accept Enrollee</DialogTitle>
+            <DialogContent>
+              <p>Are you sure you want to accept or deny this enrollee?</p>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <TextField
+                  label="School Year Start"
+                  type="number"
+                  value={schoolYearStart}
+                  onChange={(e) => setSchoolYearStart(e.target.value)}
+                  fullWidth
+                />
+                <TextField
+                  label="School Year End"
+                  type="number"
+                  value={schoolYearEnd}
+                  onChange={(e) => setSchoolYearEnd(e.target.value)}
+                  fullWidth
+                />
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => handleSelectSchedule("deny")}
+                color="error"
+                disabled={isProcessing}
+              >
+                Deny
+              </Button>
+              <Button
+                onClick={() => handleSelectSchedule("accept")}
+                color="success"
+                variant="contained"
+                disabled={isProcessing}
+              >
+                Accept
+              </Button>
+            </DialogActions>
+          </Dialog>
       </main>
     </div>
   );

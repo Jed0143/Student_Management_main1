@@ -16,45 +16,65 @@
       "static/chunks/main-app.js",
       "static/chunks/app/Enrollees/page.js"
     ],
-    "/Student_List/page": [
+    "/Students_List/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/Student_List/page.js"
-    ],
-    "/ADashboard/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/ADashboard/page.js"
-    ],
-    "/AAttendance/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/AAttendance/page.js"
+      "static/chunks/app/Students_List/page.js"
     ],
     "/Pre_Enrollment/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/Pre_Enrollment/page.js"
     ],
-    "/Student_Attendance_Record/page": [
+    "/Schedule/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/Student_Attendance_Record/page.js"
+      "static/chunks/app/Schedule/page.js"
+    ],
+    "/AAttendance/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/AAttendance/page.js"
+    ],
+    "/Teacher_List/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Teacher_List/page.js"
+    ],
+    "/List_Modules/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/List_Modules/page.js"
     ],
     "/Student_Profile/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/Student_Profile/page.js"
     ],
+    "/Student_Attendance_Record/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/Student_Attendance_Record/page.js"
+    ],
     "/AboutUs/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/AboutUs/page.js"
     ],
-    "/List_Modules/page": [
+    "/StudentList/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/List_Modules/page.js"
+      "static/chunks/app/StudentList/page.js"
+    ],
+    "/SStudent_List/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/SStudent_List/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

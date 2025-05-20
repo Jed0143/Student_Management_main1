@@ -21,8 +21,9 @@ if ($conn->connect_error) {
 }
 
 // SQL query to fetch accepted students' name, email, and schedule
-$sql = "SELECT id, full_name, email, schedule FROM pre_enrollment WHERE status = 'accepted'";
+$sql = "SELECT id, full_name, email, schedule, gender, birthday, age, first_language, second_language, address, guardian, guardian_contact, guardian_relationship, father_name, father_work, father_contact, mother_name, mother_work,  mother_contact, emergency_contact, emergency_name, teacher_name, school_year_start FROM pre_enrollment WHERE status = 'accepted'";
 $result = $conn->query($sql);
+
 
 if (!$result) {
     echo json_encode(["error" => "SQL Error: " . $conn->error]);

@@ -8,6 +8,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const StudentSidebar = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarVisible, setSidebarVisible] = useState(true);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const pathname = usePathname();
   const router = useRouter();
@@ -15,23 +17,31 @@ const StudentSidebar = ({ children }: { children: React.ReactNode }) => {
   const toggleSidebar = () => {
     setSidebarVisible((prev) => !prev);
   };
-
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(event.target as Node) &&
-        isSidebarVisible
-      ) {
-        setSidebarVisible(false);
+    if (typeof window !== "undefined") {
+      const email = localStorage.getItem("userEmail");
+      const role = localStorage.getItem("userRole");
+      if (email) {
+        setUserEmail(email);
+        fetch(
+          "http://localhost/Student_Management_main1/backend/myid.php?email=" +
+            encodeURIComponent(email)
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.userId) {
+              setUserId(data.userId);
+              localStorage.setItem("userId", data.userId);
+            } else {
+              console.error("User ID not found:", data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Failed to fetch user ID:", error);
+          });
       }
-    };
-
-    document.addEventListener("click", handleClickOutside);
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [isSidebarVisible]);
+    }
+  }, []);
 
   const menuItems = [
     { name: "Enroll", href: "/Pre_Enrollment" },
@@ -70,9 +80,16 @@ const StudentSidebar = ({ children }: { children: React.ReactNode }) => {
                 alt="Logo"
                 className="w-24 h-24 object-contain rounded-full mx-auto"
               />
-              <span className="mt-2 text-lg font-semibold text-white block">
-                M.P.C.D.C.A.R.
-              </span>
+              {isSidebarVisible && (
+                <div className="text-center mt-2">
+                  {userEmail && (
+                    <span className="text-lg font-semibold text-white block">{userEmail}</span>
+                  )}
+                  {userId && (
+                    <span className="text-sm text-gray-300 block">{userId}</span>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

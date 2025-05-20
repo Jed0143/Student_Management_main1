@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
 import Sidebar from "@/components/Sidebar";
-import { Dialog, TextField, InputAdornment } from "@mui/material";
+import { Dialog, TextField, Snackbar } from "@mui/material";
 
 interface Teacher {
   id: number;
@@ -22,15 +22,18 @@ const Teacher_List: React.FC = () => {
     password: "",
     role: "admin",
   });
+  const [confirmNewTeacherPassword, setConfirmNewTeacherPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-
   const [openPasswordDialog, setOpenPasswordDialog] = useState(false);
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null);
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
 
-  const fetchTeachers = async () => {
+  const fetchTeachers = useCallback(async () => {
     try {
       const res = await fetch("http://localhost/Student_Management_main1/backend/get_teacher.php");
       const data = await res.json();
@@ -38,11 +41,11 @@ const Teacher_List: React.FC = () => {
     } catch (err) {
       console.error("Error loading teachers:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchTeachers();
-  }, []);
+  }, [fetchTeachers]);
 
   const handleAddTeacher = () => {
     setNewTeacher({
@@ -52,6 +55,7 @@ const Teacher_List: React.FC = () => {
       password: "",
       role: "admin",
     });
+    setConfirmNewTeacherPassword("");
     setOpenAddDialog(true);
   };
 
@@ -62,23 +66,23 @@ const Teacher_List: React.FC = () => {
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/delete_teacher.php?action=delete", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
 
-      const textResponse = await response.text();
-      const result = JSON.parse(textResponse);
+      const result = await response.json();
       if (result.status === "success") {
-        alert("Teacher deleted successfully!");
+        setSnackbarMessage("Teacher deleted successfully!");
+        setSnackbarOpen(true);
         fetchTeachers();
       } else {
-        alert(`Error: ${result.message}`);
+        setSnackbarMessage(`Error: ${result.message}`);
+        setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error deleting teacher:", error);
-      alert("Error deleting teacher.");
+      setSnackbarMessage("Error deleting teacher.");
+      setSnackbarOpen(true);
     }
   };
 
@@ -88,95 +92,88 @@ const Teacher_List: React.FC = () => {
       return;
     }
 
+    if (teacher.password !== confirmNewTeacherPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
       const response = await fetch("http://localhost/Student_Management_main1/backend/save_teacher.php", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(teacher),
       });
 
-      const textResponse = await response.text();
-      const data = JSON.parse(textResponse);
+      const data = await response.json();
       if (data.status === "success") {
-        alert(data.message);
+        setSnackbarMessage(data.message);
+        setSnackbarOpen(true);
         setOpenAddDialog(false);
-        window.location.reload();
+        fetchTeachers();
       } else {
-        alert(`Error: ${data.message}`);
+        setSnackbarMessage(`Error: ${data.message}`);
+        setSnackbarOpen(true);
       }
     } catch (error) {
       console.error("Error saving teacher:", error);
-      alert("Failed to save teacher.");
+      setSnackbarMessage("Failed to save teacher.");
+      setSnackbarOpen(true);
     } finally {
       setIsSaving(false);
     }
   };
 
-const handleChangePassword = async () => {
-  if (!newPassword || !confirmPassword) {
-    alert("Please enter both password fields.");
-    return;
-  }
-
-  if (newPassword !== confirmPassword) {
-    alert("Passwords do not match!");
-    return;
-  }
-
-  // Log the selected teacher id to check if it's set correctly
-  console.log("Changing password for teacher ID:", selectedTeacherId);
-
-  if (!selectedTeacherId) {
-    alert("No teacher selected.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost/Student_Management_main1/backend/change_password.php", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        id: selectedTeacherId, // Make sure the id is correct
-        new_password: newPassword, // Ensure the new password is being sent correctly
-      }),
-    });
-
-    const result = await response.json();
-    console.log(result); // Log the result to see the response
-
-    if (response.ok && result.status === "success") {
-      alert("Password updated successfully!");
-      setOpenPasswordDialog(false);
-      setNewPassword("");
-      setConfirmPassword("");
-    } else {
-      alert(`Error: ${result.message || "Something went wrong."}`);
+  const handleChangePassword = async () => {
+    if (!newPassword || !confirmNewPassword) {
+      alert("Please enter both password fields.");
+      return;
     }
-  } catch (error) {
-    console.error("Error changing password:", error);
-    alert("Failed to change password.");
-  }
-};
 
+    if (newPassword !== confirmNewPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
 
+    if (!selectedTeacherId) {
+      alert("No teacher selected.");
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost/Student_Management_main1/backend/change_password.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedTeacherId,
+          new_password: newPassword,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.status === "success") {
+        setSnackbarMessage("Password updated successfully!");
+        setSnackbarOpen(true);
+        setOpenPasswordDialog(false);
+        setNewPassword("");
+        setConfirmNewPassword("");
+      } else {
+        setSnackbarMessage(`Error: ${result.message || "Something went wrong."}`);
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      setSnackbarMessage("Failed to change password.");
+      setSnackbarOpen(true);
+    }
+  };
 
   function handleInputChange(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void {
     const { name, value } = event.target;
-    setNewTeacher((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setNewTeacher((prev) => ({ ...prev, [name]: value }));
   }
-
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
-  };
 
   return (
     <div className="flex">
@@ -201,19 +198,13 @@ const handleChangePassword = async () => {
                   <td className="border px-4 py-2">{teacher.full_name}</td>
                   <td className="border px-4 py-2">{teacher.email}</td>
                   <td className="border px-4 py-2 space-x-2">
-                    <button
-                      className="bg-red-500 text-white py-1 px-3 rounded"
-                      onClick={() => handleDeleteTeacher(teacher.id)}
-                    >
+                    <button className="bg-red-500 text-white py-1 px-3 rounded" onClick={() => handleDeleteTeacher(teacher.id)}>
                       Remove
                     </button>
-                    <button
-                      className="bg-yellow-500 text-white py-1 px-3 rounded"
-                      onClick={() => {
-                        setSelectedTeacherId(teacher.id);
-                        setOpenPasswordDialog(true);
-                      }}
-                    >
+                    <button className="bg-yellow-500 text-white py-1 px-3 rounded" onClick={() => {
+                      setSelectedTeacherId(teacher.id);
+                      setOpenPasswordDialog(true);
+                    }}>
                       Change Password
                     </button>
                   </td>
@@ -224,10 +215,7 @@ const handleChangePassword = async () => {
         </div>
 
         <div className="mt-6 text-center">
-          <button
-            className="bg-green-500 text-white px-6 py-2 rounded"
-            onClick={handleAddTeacher}
-          >
+          <button className="bg-green-500 text-white px-6 py-2 rounded" onClick={handleAddTeacher}>
             Create/Add Teacher
           </button>
         </div>
@@ -237,49 +225,48 @@ const handleChangePassword = async () => {
           <div className="p-6">
             <h2 className="text-2xl font-bold mb-4">Add New Teacher</h2>
             <form className="space-y-4">
-              <TextField
-                label="First Name, Middle Name, Last Name"
-                variant="outlined"
-                fullWidth
-                name="full_name"
-                value={newTeacher.full_name}
-                onChange={handleInputChange}
-                required
-              />
-              <TextField
-                label="Email (Gmail)"
-                variant="outlined"
-                fullWidth
-                name="email"
-                value={newTeacher.email}
-                onChange={handleInputChange}
-                required
-              />
-              <TextField
-                label="Password"
-                variant="outlined"
-                fullWidth
-                name="password"
-                type="password"
-                value={newTeacher.password}
-                onChange={handleInputChange}
-                required
-              />
-              <input type="hidden" name="role" value="admin" />
-              <div className="flex justify-end space-x-4 mt-4">
+              <TextField label="Full Name" variant="outlined" fullWidth name="full_name" value={newTeacher.full_name} onChange={handleInputChange} required />
+              <TextField label="Email (Gmail)" variant="outlined" fullWidth name="email" value={newTeacher.email} onChange={handleInputChange} required />
+
+              {/* Password with show/hide */}
+              <div className="relative">
+                <TextField
+                  label="Password"
+                  variant="outlined"
+                  fullWidth
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={newTeacher.password}
+                  onChange={handleInputChange}
+                  required
+                />
                 <button
                   type="button"
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={() => setOpenAddDialog(false)}
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-blue-600"
                 >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              {/* Confirm Password*/}
+              <div className="relative">
+                <TextField
+                  label="Confirm Password"
+                  variant="outlined"
+                  fullWidth
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmNewTeacherPassword}
+                  onChange={(e) => setConfirmNewTeacherPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="flex justify-end space-x-4 mt-4">
+                <button type="button" className="bg-red-500 text-white px-4 py-2 rounded" onClick={() => setOpenAddDialog(false)}>
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  className="bg-green-500 text-white px-6 py-2 rounded"
-                  onClick={() => handleSaveNewTeacher(newTeacher)}
-                  disabled={isSaving}
-                >
+                <button type="button" className="bg-green-500 text-white px-6 py-2 rounded" onClick={() => handleSaveNewTeacher(newTeacher)} disabled={isSaving}>
                   {isSaving ? "Saving..." : "Save"}
                 </button>
               </div>
@@ -292,50 +279,49 @@ const handleChangePassword = async () => {
           <div className="p-6">
             <h2 className="text-xl font-bold mb-4">Change Password</h2>
             <div className="space-y-4">
-              <TextField
-                label="New Password"
-                type="password"
-                fullWidth
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <TextField
-                label="Confirm Password"
-                type={showConfirmPassword ? "text" : "password"}
-                fullWidth
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <button
-                        type="button"
-                        className="text-blue-600 font-semibold"
-                        onClick={toggleConfirmPasswordVisibility}
-                      >
-                        {showConfirmPassword ? "Hide" : "Show"}
-                      </button>
-                    </InputAdornment>
-                  ),
-                }}
-              />
+              {/* New Password Field with Show/Hide Toggle */}
+              <div className="relative">
+                <TextField
+                  label="New Password"
+                  type={showPassword ? "text" : "password"}
+                  fullWidth
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-blue-600"
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+
+              {/* Confirm Password Field with Show/Hide Toggle */}
+              <div className="relative">
+                <TextField
+                  label="Confirm Password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  fullWidth
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  required
+                />
+              </div>
             </div>
+
             <div className="flex justify-end space-x-4 mt-6">
-              <button
-                className="bg-gray-400 text-white px-4 py-2 rounded"
-                onClick={() => setOpenPasswordDialog(false)}
-              >
+              <button className="bg-gray-400 text-white px-4 py-2 rounded" onClick={() => setOpenPasswordDialog(false)}>
                 Cancel
               </button>
-              <button
-                className="bg-blue-600 text-white px-6 py-2 rounded"
-                onClick={handleChangePassword}
-              >
+              <button className="bg-blue-600 text-white px-6 py-2 rounded" onClick={handleChangePassword}>
                 Update Password
               </button>
             </div>
           </div>
         </Dialog>
+
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={() => setSnackbarOpen(false)} message={snackbarMessage} />
       </div>
     </div>
   );

@@ -8,23 +8,46 @@ const Homepage = () => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Login states
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [agreed, setAgreed] = useState(false);
+
+  // Create Account states
+  const [createEmail, setCreateEmail] = useState("");
+  const [createPassword, setCreatePassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
-  
+  const [agreed, setAgreed] = useState(false);
+  const [showPrivacyMessage, setShowPrivacyMessage] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [middleName, setMiddleName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [contactNo, setContactNo] = useState("");
+  const [streetName, setStreetName] = useState('');
+  const [barangay, setBarangay] = useState('');
+  const [city, setCity] = useState('');
+  const [province, setProvince] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [birthdate, setBirthdate] = useState('');
+
+
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
+
+  const toggleConfirmPasswordVisibility = () => {
+  setShowConfirmPassword(!showConfirmPassword);
+};
 
   const toggleModal = () => setIsModalOpen(!isModalOpen);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!email || !password) {
+    if (!loginEmail || !loginPassword) {
       alert("Email and password are required.");
       return;
     }
@@ -33,10 +56,9 @@ const Homepage = () => {
       const res = await fetch("http://localhost/Student_Management_main1/backend/login.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
 
-      // Check if the response is valid
       if (!res.ok) {
         alert(`Login failed. Server responded with status: ${res.status}`);
         return;
@@ -47,7 +69,7 @@ const Homepage = () => {
 
       if (data.status === "success") {
         const { role, id } = data;
-        const userEmail = data.email || email;
+        const userEmail = data.email || loginEmail;
 
         localStorage.setItem("userId", id);
         localStorage.setItem("userEmail", userEmail);
@@ -55,7 +77,7 @@ const Homepage = () => {
         if (role === "super_admin") {
           router.push(`/Enrollees?id=${id}`);
         } else if (role === "admin") {
-          router.push(`/ADashboard?id=${id}`);
+          router.push(`/Students_List?id=${id}`);
         } else if (role === "parent") {
           router.push(`/Pre_Enrollment?id=${id}`);
         } else {
@@ -72,7 +94,14 @@ const Homepage = () => {
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
+    const passwordRegex = /^[A-Za-z0-9]{8,}$/;
+
+    if (!passwordRegex.test(createPassword)) {
+      alert("Password must be at least 8 characters long and contain only letters and numbers.");
+      return;
+    }
+
+    if (createPassword !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
@@ -86,22 +115,35 @@ const Homepage = () => {
       const res = await fetch("http://localhost/Student_Management_main1/backend/create_account.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: "parent" }), // Add the 'role' here
+        body: JSON.stringify({
+        email: createEmail,
+        password: createPassword,
+        firstName,
+        middleName,
+        lastName,
+        contactNo,
+        streetName,
+        barangay,
+        city,
+        province,
+        postalCode,
+        birthdate
+      }),
+
       });
 
-      // Check if the response is valid
       if (!res.ok) {
         alert(`Account creation failed. Server responded with status: ${res.status}`);
         return;
       }
 
-      const clone = res.clone(); // ✅ clone response to read it twice safely
+      const clone = res.clone();
 
       let data;
       try {
         data = await res.json();
       } catch (jsonErr) {
-        const text = await clone.text(); // ✅ fallback to text using clone
+        const text = await clone.text();
         console.error("Invalid JSON response:", text);
         alert("Server returned invalid response. Check console for details.");
         return;
@@ -109,26 +151,28 @@ const Homepage = () => {
 
       if (data.status === "success") {
         alert("Account created successfully!");
-        setEmail("");
-        setPassword("");
+        setCreateEmail("");
+        setCreatePassword("");
         setConfirmPassword("");
         setAgreed(false);
         setShowCreateModal(false);
       } else {
         alert(data.message || "Account creation failed.");
       }
-
     } catch (err) {
       console.error("Network or server error:", err);
       alert("Failed to connect to the server.");
     }
   };
 
-  // Close modal when clicking outside of it
   const closeModal = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       setShowCreateModal(false);
     }
+  };
+
+  const handlePrivacyPolicyClick = () => {
+    setShowPrivacyMessage(true);
   };
 
   return (
@@ -169,88 +213,252 @@ const Homepage = () => {
         </div>
       )}
 
-      {showCreateModal && (
-        <div className="absolute inset-0 flex justify-center items-center bg-black/50 z-50" onClick={closeModal}>
-          <div
-            className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
-          >
-            <h2 className="text-2xl font-bold text-blue-600 mb-4 text-center">Create Account</h2>
-            <form onSubmit={handleCreateAccount} className="space-y-4">
-              <div>
-                <label className="block text-gray-700 mb-1">Email:</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full border p-2 rounded"
-                  required
-                  placeholder="Enter your Email"
-                />
-              </div>
-              <div className="relative">
-                <label className="block text-gray-700 mb-1">Password:</label>
-                <div className="relative flex items-center">
-                  <input
-                    type={passwordVisible ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border p-2 rounded pr-12"
-                    required
-                    placeholder="Enter your password"
-                  />
-                  <button
-                    type="button"
-                    onClick={togglePasswordVisibility}
-                    className="absolute right-2 top-2 text-blue-600"
-                  >
-                    {passwordVisible ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-              </div>
-              <div>
-                <label className="block text-gray-700 mb-1">Confirm Password:</label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full border p-2 rounded"
-                  required
-                  placeholder="Re-enter your password"
-                />
-              </div>
+{showCreateModal && (
+  <div
+    className="fixed inset-0 flex justify-center items-center bg-black/50 z-50 overflow-auto"
+    onClick={closeModal}
+  >
+    <div
+      className="bg-white p-8 rounded-lg shadow-lg w-full max-w-2xl mx-4 my-8 max-h-[90vh] overflow-y-auto"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h2 className="text-2xl font-bold text-blue-600 mb-4 text-center">Create Account</h2>
+      <form onSubmit={handleCreateAccount} className="space-y-4">
+        {/* Name Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-gray-700 mb-1">First Name:</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your first name"
+            />
+          </div>
 
-              {/* Line Divider */}
-              <hr className="my-4 border-t-2 border-blue-800" />
+          <div>
+            <label className="block text-gray-700 mb-1">Middle Name:</label>
+            <input
+              type="text"
+              value={middleName}
+              onChange={(e) => setMiddleName(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your middle name"
+            />
+          </div>
 
-              <div className="flex items-start space-x-2">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={() => setAgreed(!agreed)}
-                  className="mt-1"
-                  required
-                />
-                <label className="text-sm text-gray-700">
-                  By signing up, you confirm that you have read, understood, and agree to our Privacy Policy. You acknowledge and consent to the collection, use, and processing of your personal data in accordance with the Data Protection Act (DPA) and any other applicable data protection regulations. Your data will be used solely for purposes related to your account
-                </label>
-              </div>
-                <div className="flex justify-between mt-6">
-                  <div className="ml-auto">
-                    <button
-                      type="submit"
-                      className={`px-4 py-2 rounded text-white ${
-                        agreed ? "bg-green-600 hover:bg-green-800" : "bg-blue-600"
-                      }`}
-                    >
-                      Submit
-                    </button>
-                  </div>//
-                </div>
-            </form>
+          <div>
+            <label className="block text-gray-700 mb-1">Last Name:</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your last name"
+            />
           </div>
         </div>
-      )}
+
+        {/* Birthdate */}
+        <div>
+          <label className="block text-gray-700 mb-1">Birthdate:</label>
+          <input
+            type="date"
+            value={birthdate}
+            onChange={(e) => setBirthdate(e.target.value)}
+            className="w-full border p-2 rounded"
+            required
+          />
+
+        </div>
+        {/* Contact */}
+        <div>
+          <label className="block text-gray-700 mb-1">Contact No.:</label>
+          <input
+            type="tel"
+            value={contactNo}
+            onChange={(e) => setContactNo(e.target.value)}
+            className="w-full border p-2 rounded"
+            required
+            placeholder="Enter your contact number"
+          />
+        </div>
+
+        {/* Address Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-gray-700 mb-1">Street Name:</label>
+            <input
+              type="text"
+              value={streetName}
+              onChange={(e) => setStreetName(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your street name"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1">Barangay:</label>
+            <input
+              type="text"
+              value={barangay}
+              onChange={(e) => setBarangay(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your barangay"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1">City / Municipality:</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your city or municipality"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1">Province:</label>
+            <input
+              type="text"
+              value={province}
+              onChange={(e) => setProvince(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your province"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-1">Postal / ZIP Code:</label>
+            <input
+              type="text"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              className="w-full border p-2 rounded"
+              required
+              placeholder="Enter your ZIP code"
+            />
+          </div>
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-gray-700 mb-1">Email:</label>
+          <input
+            type="email"
+            value={createEmail}
+            onChange={(e) => setCreateEmail(e.target.value)}
+            className="w-full border p-2 rounded"
+            required
+            placeholder="Enter your Email"
+          />
+        </div>
+
+        {/* Password */}
+        <div className="relative">
+          <label className="block text-gray-700 mb-1">Password:</label>
+          <div className="relative flex items-center">
+            <input
+              type={passwordVisible ? 'text' : 'password'}
+              value={createPassword}
+              onChange={(e) => setCreatePassword(e.target.value)}
+              className="w-full border p-2 rounded pr-12"
+              required
+              placeholder="Enter your password"
+            />
+            <button
+              type="button"
+              onClick={togglePasswordVisibility}
+              className="absolute right-2 top-2 text-blue-600"
+            >
+              {passwordVisible ? 'Hide' : 'Show'}
+            </button>
+          </div>
+        </div>
+
+        {/* Confirm Password */}
+        <div className="relative">
+          <label className="block text-gray-700 mb-1">Confirm Password:</label>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border p-2 rounded pr-16"
+              required
+              placeholder="Re-enter your password"
+            />
+            <button
+              type="button"
+              onClick={toggleConfirmPasswordVisibility}
+              className="absolute right-2 top-2 text-blue-600"
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <hr className="my-4 border-t-2 border-blue-800" />
+
+        {/* Privacy Policy Agreement */}
+        <div className="flex items-start space-x-2">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={() => setAgreed(!agreed)}
+            className="mt-1"
+            disabled={!showPrivacyMessage}
+          />
+          <label className="text-sm text-gray-700">
+            By signing up, you confirm that you have read, understood, and agree to our{" "}
+            <button
+              type="button"
+              className="text-blue-600 underline"
+              onClick={handlePrivacyPolicyClick}
+            >
+              Privacy Policy
+            </button>
+          </label>
+        </div>
+
+        {showPrivacyMessage && (
+          <p className="text-sm text-gray-700 mt-2">
+            You acknowledge and consent to the collection, use, and processing of your personal data
+            in accordance with the Data Protection Act (DPA) and any other applicable data
+            protection regulations. Your data will be used solely for purposes related to your
+            account.
+          </p>
+        )}
+
+        {/* Submit Button */}
+        <div className="flex justify-between mt-6">
+          <div className="ml-auto">
+            <button
+              type="submit"
+              className={`px-4 py-2 rounded text-white ${
+                agreed ? "bg-green-600 hover:bg-green-800" : "bg-blue-600"
+              }`}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
       <div className="flex flex-col lg:flex-row items-center w-full max-w-7xl px-6 py-8 gap-8 lg:gap-16 relative z-10">
         <div className="w-full lg:w-1/2 mb-8 lg:mb-0 relative">
@@ -267,8 +475,8 @@ const Homepage = () => {
               <label className="block text-gray-700 mb-1">Email:</label>
               <input
                 type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
                 className="w-full border p-2 rounded"
                 required
                 placeholder="Enter your Email"
@@ -279,8 +487,8 @@ const Homepage = () => {
               <label className="block text-gray-700 mb-1">Password:</label>
               <input
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
                 className="w-full border p-2 rounded pr-12"
                 required
                 placeholder="Enter your password"

@@ -17,21 +17,32 @@ $conn = new mysqli($host, $user, $pass, $dbname);
 
 // Check if the connection was successful
 if ($conn->connect_error) {
-    // Send error message in JSON format
     echo json_encode(["error" => "Connection failed: " . $conn->connect_error]);
     exit();
 }
 
-// SQL query to fetch accepted students with a non-null schedule
-$sql = "SELECT id, full_name, schedule FROM pre_enrollment WHERE status = 'accepted' AND schedule IS NOT NULL AND schedule != ''";
-$result = $conn->query($sql);
+// Get optional teacher_name from GET parameters
+$teacherName = isset($_GET['teacher_name']) ? trim($_GET['teacher_name']) : null;
 
-// Initialize an empty array to store student data
+// Base SQL query
+$sql = "SELECT id, full_name, schedule FROM pre_enrollment WHERE status = 'accepted' AND schedule IS NOT NULL AND schedule != ''";
+
+// Add teacher_name filter if provided
+if (!empty($teacherName)) {
+    $sql .= " AND teacher_name = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $teacherName);
+} else {
+    $stmt = $conn->prepare($sql);
+}
+
+// Execute and get results
+$stmt->execute();
+$result = $stmt->get_result();
+
 $students = [];
 
-// Check if there are results from the query
 if ($result && $result->num_rows > 0) {
-    // Fetch each row and add it to the students array
     while ($row = $result->fetch_assoc()) {
         $students[] = [
             "id" => (int)$row["id"],
@@ -39,14 +50,12 @@ if ($result && $result->num_rows > 0) {
             "schedule" => $row["schedule"]
         ];
     }
-} else {
-    // No students found, return an empty array
-    $students = [];
 }
 
-// Send the student data as JSON response
+// Return results
 echo json_encode($students);
 
-// Close the database connection
+// Close everything
+$stmt->close();
 $conn->close();
 ?>

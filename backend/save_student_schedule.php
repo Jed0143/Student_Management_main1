@@ -24,21 +24,22 @@ if ($conn->connect_error) {
 // Get POST data
 $data = json_decode(file_get_contents("php://input"), true);
 
-// Validate only 'id' and 'schedule' (not full_name or email)
-if (isset($data['id']) && isset($data['schedule'])) {
+// Validate input
+if (isset($data['id']) && isset($data['schedule']) && isset($data['teacher_name'])) {
     $id = $conn->real_escape_string($data['id']);
     $schedule = $conn->real_escape_string($data['schedule']);
+    $teacher_name = $conn->real_escape_string($data['teacher_name']);
 
-    // Update query
-    $sql = "UPDATE pre_enrollment SET schedule='$schedule' WHERE id='$id'";
+    // Update query (set both schedule and teacher_name)
+    $sql = "UPDATE pre_enrollment SET schedule='$schedule', teacher_name='$teacher_name' WHERE id='$id'";
 
     if ($conn->query($sql) === TRUE) {
         echo json_encode(["success" => true]);
     } else {
-        echo json_encode(["error" => "Failed to update schedule: " . $conn->error]);
+        echo json_encode(["error" => "Failed to update: " . $conn->error]);
     }
 } else {
-    echo json_encode(["error" => "Invalid input. 'id' and 'schedule' are required."]);
+    echo json_encode(["error" => "Invalid input. 'id', 'schedule', and 'teacher_name' are required."]);
 }
 
 $conn->close();

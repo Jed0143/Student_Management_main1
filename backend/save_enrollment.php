@@ -26,18 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// Debugging: output POST data to check if full_name is being sent
-file_put_contents('php://stderr', print_r($_POST, true));  // This will output data to error log
-
-// Ensure required fields are set
+// Required fields - including emergency name parts
 $requiredFields = [
-    'full_name', 'email', 'gender', 'birthday', 'age', 'address',
-    'firstLanguage', 'secondLanguage', 'guardian', 'guardianContact', 'guardianRelationship',
-    'motherName', 'motherAddress', 'motherWork', 'motherContact',
-    'fatherName', 'fatherAddress', 'fatherWork', 'fatherContact',
-    'emergencyName', 'emergencyContact'
+    'first_name', 'middle_name', 'last_name', 'email', 'gender', 'birthday', 'age',
+    'street', 'barangay', 'city', 'province', 'postal',
+    'firstLanguage', 'secondLanguage',
+    'guardianFirstName', 'guardianMiddleName', 'guardianLastName', 'guardianContact', 'guardianRelationship',
+    'motherFirstName', 'motherMiddleName', 'motherLastName',
+    'motherStreet', 'motherBarangay', 'motherCity', 'motherProvince', 'motherZip',
+    'motherWork', 'motherContact',
+    'fatherFirstName', 'fatherMiddleName', 'fatherLastName',
+    'fatherStreet', 'fatherBarangay', 'fatherCity', 'fatherProvince', 'fatherZip',
+    'fatherWork', 'fatherContact',
+    'emergencyFirstName', 'emergencyMiddleName', 'emergencyLastName', 'emergencyContact'
 ];
 
+// Validate required fields
 foreach ($requiredFields as $field) {
     if (empty($_POST[$field])) {
         echo json_encode(["status" => "error", "message" => "Missing required field: $field"]);
@@ -45,38 +49,82 @@ foreach ($requiredFields as $field) {
     }
 }
 
-// Assign variables
-$full_name = $_POST['full_name'];  // Match with your table column name 'full_name'
+// Student Name
+$first_name = trim($_POST['first_name']);
+$middle_name = trim($_POST['middle_name']);
+$last_name = trim($_POST['last_name']);
+$full_name = $first_name . ($middle_name ? " " . $middle_name : "") . " " . $last_name;
+
+// Guardian Name
+$guardianFirstName = trim($_POST['guardianFirstName']);
+$guardianMiddleName = trim($_POST['guardianMiddleName']);
+$guardianLastName = trim($_POST['guardianLastName']);
+$guardian = $guardianFirstName . ($guardianMiddleName ? " " . $guardianMiddleName : "") . " " . $guardianLastName;
+
+// Mother Name
+$motherFirstName = trim($_POST['motherFirstName']);
+$motherMiddleName = trim($_POST['motherMiddleName']);
+$motherLastName = trim($_POST['motherLastName']);
+$motherName = $motherFirstName . ($motherMiddleName ? " " . $motherMiddleName : "") . " " . $motherLastName;
+
+// Father Name
+$fatherFirstName = trim($_POST['fatherFirstName']);
+$fatherMiddleName = trim($_POST['fatherMiddleName']);
+$fatherLastName = trim($_POST['fatherLastName']);
+$fatherName = $fatherFirstName . ($fatherMiddleName ? " " . $fatherMiddleName : "") . " " . $fatherLastName;
+
+// Emergency Contact Name
+$emergencyFirstName = trim($_POST['emergencyFirstName']);
+$emergencyMiddleName = trim($_POST['emergencyMiddleName']);
+$emergencyLastName = trim($_POST['emergencyLastName']);
+$emergencyName = $emergencyFirstName . ($emergencyMiddleName ? " " . $emergencyMiddleName : "") . " " . $emergencyLastName;
+
+// Addresses
+$street = trim($_POST['street']);
+$barangay = trim($_POST['barangay']);
+$city = trim($_POST['city']);
+$province = trim($_POST['province']);
+$postal = trim($_POST['postal']);
+$address = "$street, $barangay, $city, $province, $postal";
+
+$motherStreet = trim($_POST['motherStreet']);
+$motherBarangay = trim($_POST['motherBarangay']);
+$motherCity = trim($_POST['motherCity']);
+$motherProvince = trim($_POST['motherProvince']);
+$motherZip = trim($_POST['motherZip']);
+$motherAddress = "$motherStreet, $motherBarangay, $motherCity, $motherProvince, $motherZip";
+
+$fatherStreet = trim($_POST['fatherStreet']);
+$fatherBarangay = trim($_POST['fatherBarangay']);
+$fatherCity = trim($_POST['fatherCity']);
+$fatherProvince = trim($_POST['fatherProvince']);
+$fatherZip = trim($_POST['fatherZip']);
+$fatherAddress = "$fatherStreet, $fatherBarangay, $fatherCity, $fatherProvince, $fatherZip";
+
+// Other fields
 $email = $_POST['email'];
 $gender = $_POST['gender'];
 $birthday = $_POST['birthday'];
 $age = $_POST['age'];
-$address = $_POST['address'];
 $firstLanguage = $_POST['firstLanguage'];
 $secondLanguage = $_POST['secondLanguage'];
-$guardian = $_POST['guardian'];
 $guardianContact = $_POST['guardianContact'];
 $guardianRelationship = $_POST['guardianRelationship'];
-$motherName = $_POST['motherName'];
-$motherAddress = $_POST['motherAddress'];
 $motherWork = $_POST['motherWork'];
 $motherContact = $_POST['motherContact'];
-$fatherName = $_POST['fatherName'];
-$fatherAddress = $_POST['fatherAddress'];
 $fatherWork = $_POST['fatherWork'];
 $fatherContact = $_POST['fatherContact'];
-$emergencyName = $_POST['emergencyName'];
 $emergencyContact = $_POST['emergencyContact'];
 $date = $_POST['date'] ?? date('Y-m-d');
 
-// Insert into pre_enrollment table without schedule
+// SQL Insert
 $sql = "INSERT INTO pre_enrollment (
     full_name, email, gender, birthday, age, address,
     first_language, second_language, guardian, guardian_contact, guardian_relationship,
     mother_name, mother_address, mother_work, mother_contact,
     father_name, father_address, father_work, father_contact,
     emergency_name, emergency_contact, date
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" ;
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = $conn->prepare($sql);
 
@@ -85,7 +133,6 @@ if (!$stmt) {
     exit;
 }
 
-// Bind parameters correctly (correct data types: s for string, i for integer)
 $stmt->bind_param("ssssssssssssssssssssss", 
     $full_name, $email, $gender, $birthday, $age, $address,
     $firstLanguage, $secondLanguage, $guardian, $guardianContact, $guardianRelationship,

@@ -9,26 +9,48 @@ import StudentSidebar from "@/components/studentsidebar";
 
 const PreEnrollment = () => {
   const [formData, setFormData] = useState({
-    full_name: "", // Added full_name property
+    first_name: '',
+    middle_name: '',
+    last_name: '',
     gender: "",
     birthday: "",
     age: "",
     registered: "",
-    address: "",
+    street: '',
+    barangay: '',
+    city: '',
+    province: '',
+    postal: '',
     firstLanguage: "",
     secondLanguage: "",
-    guardian: "",
+    guardianFirstName: '',
+    guardianMiddleName: '',
+    guardianLastName: '',
     guardianContact: "",
     guardianRelationship: "",
-    motherName: "",
-    motherAddress: "",
+    motherFirstName: "",
+    motherMiddleName: "",
+    motherLastName: "",
+    motherStreet: "",
+    motherBarangay: "",
+    motherCity: "",
+    motherProvince: "",
+    motherZip: "",
     motherWork: "",
     motherContact: "",
-    fatherName: "",
-    fatherAddress: "",
+    fatherFirstName: "",
+    fatherMiddleName: "",
+    fatherLastName: "",
+    fatherStreet: '',
+    fatherBarangay: '',
+    fatherCity: '',
+    fatherProvince: '',
+    fatherZip: '',
     fatherWork: "",
     fatherContact: "",
-    emergencyName: "",
+    emergencyFirstName: '',
+    emergencyMiddleName: '',
+    emergencyLastName: '',
     emergencyContact: "",
     emergencyWork: "",
     date: new Date().toISOString().split("T")[0],
@@ -40,6 +62,7 @@ const PreEnrollment = () => {
   const router = useRouter(); // Initialize useRouter
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCustomRelationship, setIsCustomRelationship] = useState(false);
 
 useEffect(() => {
     const storedEmail = localStorage.getItem("userEmail");
@@ -51,6 +74,10 @@ useEffect(() => {
     }
   }, []);
 
+  const relationshipOptions = [
+  "Mother", "Father", "Aunt", "Uncle", "Grandparent", "Sibling", "Other"
+];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target as HTMLInputElement;
   
@@ -60,14 +87,24 @@ useEffect(() => {
     } else {
       let newValue = value;
   
-      if (name === "full_name") {
+      if (
+        name === "first_name" ||
+        name === "middle_name" ||
+        name === "last_name"
+      ) {
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
   
-      if (name === "address") {
-        // Allow letters, numbers, spaces
+      if (["street", "barangay", "city", "province"].includes(name)) {
+        // Allow letters, numbers, and spaces only
         newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
       }
+
+      if (name === "postal") {
+        // Allow numbers only for ZIP/Postal Code
+        newValue = value.replace(/[^0-9]/g, '');
+      }
+
 
       if (name === "firstLanguage") {
         // Only letters and spaces
@@ -79,15 +116,30 @@ useEffect(() => {
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
 
-      if (name === "motherName") {
-        // Only letters and spaces
+      if (
+        name === "motherFirstName" ||
+        name === "motherMiddleName" ||
+        name === "motherLastName"
+      ) {
+        // Allow only letters and spaces for all three name parts
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
 
-      if (name === "motherAddress") {
-        // Allow letters, numbers, spaces
+      if (
+        name === "motherStreet" ||
+        name === "motherBarangay" ||
+        name === "motherCity" ||
+        name === "motherProvince"
+      ) {
+        // Allow letters, numbers, and spaces only
         newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
       }
+
+      if (name === "motherZip") {
+        // Allow numbers only for ZIP Code
+        newValue = value.replace(/[^0-9]/g, '');
+      }
+
 
       if (name === "motherContact") {
         // Only digits
@@ -109,14 +161,27 @@ useEffect(() => {
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
 
-      if (name === "fatherName") {
-        // Only letters and spaces
+      if (
+        name === "fatherFirstName" ||
+        name === "fatherMiddleName" ||
+        name === "fatherLastName"
+      ) {
+        // Allow only letters and spaces for all three name parts
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
-
-      if (name === "fatherAddress") {
+      if (
+        name === "fatherStreet" ||
+        name === "fatherBarangay" ||
+        name === "fatherCity" ||
+        name === "fatherProvince"
+      ) {
         // Allow letters, numbers, spaces
         newValue = value.replace(/[^A-Za-z0-9\s]/g, '');
+      }
+
+      // Allow only numbers for ZIP code
+      if (name === "fatherZip") {
+        newValue = value.replace(/[^0-9]/g, '');
       }
 
       if (name === "fatherContact") {
@@ -138,6 +203,23 @@ useEffect(() => {
         // Only letters and spaces
         newValue = value.replace(/[^A-Za-z\s]/g, '');
       }
+
+      if (
+        name === "guardianFirstName" ||
+        name === "guardianMiddleName" ||
+        name === "guardianLastName"
+      ) {
+        // Allow only letters and spaces for all three name parts
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
+
+      if (
+        name === "emergencyFirstName" ||
+        name === "emergencyMiddleName" ||
+        name === "emergencyLastName"
+      ) {
+        newValue = value.replace(/[^A-Za-z\s]/g, '');
+      }
   
       setFormData((prevData) => ({ ...prevData, [name]: newValue }));
     }
@@ -146,41 +228,69 @@ useEffect(() => {
       calculateAge(value);
     }
   };  
+
+      const fillAddressMother = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+    motherStreet: prevData.street,
+    motherBarangay: prevData.barangay,
+    motherCity: prevData.city,
+    motherProvince: prevData.province,
+    motherZip: prevData.postal,
+    }));
+  };
+
+    const fillAddressFather = () => {
+    setFormData((prevData) => ({
+      ...prevData,
+    fatherStreet: prevData.street,
+    fatherBarangay: prevData.barangay,
+    fatherCity: prevData.city,
+    fatherProvince: prevData.province,
+    fatherZip: prevData.postal,
+    }));
+  };
   
 
   const fillGuardianFromFather = () => {
     setFormData((prevData) => ({
       ...prevData,
-      guardian: prevData.fatherName,
-      guardianContact: prevData.fatherContact,
+    guardianFirstName: prevData.fatherFirstName,
+    guardianMiddleName: prevData.fatherMiddleName,
+    guardianLastName: prevData.fatherLastName,
+    guardianContact: prevData.fatherContact,
     }));
   };
 
-  const fillGuardianFromMother = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      guardian: prevData.motherName,
-      guardianContact: prevData.motherContact,
-    }));
-  };
+const fillGuardianFromMother = () => {
+  setFormData((prevData) => ({
+    ...prevData,
+    guardianFirstName: prevData.motherFirstName,
+    guardianMiddleName: prevData.motherMiddleName,
+    guardianLastName: prevData.motherLastName,
+    guardianContact: prevData.motherContact,
+  }));
+};
 
   const fillEmergencyFromFather = () => {
     setFormData((prevData) => ({
       ...prevData,
-      emergencyName: prevData.fatherName,
-      emergencyContact: prevData.fatherContact,
-      emergencyWork: prevData.fatherWork,
+    emergencyFirstName: prevData.fatherFirstName,
+    emergencyMiddleName: prevData.fatherMiddleName,
+    emergencyLastName: prevData.fatherLastName,
+    guardianContact: prevData.fatherContact,
     }));
   };
 
-  const fillEmergencyFromMother = () => {
-    setFormData((prevData) => ({
-      ...prevData,
-      emergencyName: prevData.motherName,
-      emergencyContact: prevData.motherContact,
-      emergencyWork: prevData.motherWork,
-    }));
-  };
+const fillEmergencyFromMother = () => {
+  setFormData((prevData) => ({
+    ...prevData,
+    emergencyFirstName: prevData.motherFirstName,
+    emergencyMiddleName: prevData.motherMiddleName,
+    emergencyLastName: prevData.motherLastName,
+    emergencyContact: prevData.motherContact,
+  }));
+};
 
   const calculateAge = (birthday: string) => {
     if (!birthday) return;
@@ -198,7 +308,19 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     // Make sure all required fields are filled
-    if (!formData.full_name || !formData.gender || !formData.birthday || !formData.age || !formData.address) {
+    if (
+      !formData.first_name ||
+      !formData.middle_name ||
+      !formData.last_name ||
+      !formData.gender ||
+      !formData.birthday ||
+      !formData.age ||
+      !formData.street ||
+      !formData.barangay ||
+      !formData.city ||
+      !formData.province ||
+      !formData.postal
+    ) {
       alert("Please fill out all required fields.");
       return;
     }
@@ -226,6 +348,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 
         if (data.status === "success") {
           alert("Enrollment saved successfully!");
+          window.location.reload();
           router.push("/Pre_Enrollment"); // Redirect to homepage
         } else {
           alert("Error: " + data.message);
@@ -247,32 +370,49 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         <h1 className="text-4xl font-extrabold text-blue-900 mb-8 text-center">REGISTRATION FORM FOR PARENT</h1>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-                      <div>
-            <label className="block font-semibold">Email</label>
-            <input
-              type="text"
-              name="email"
-              placeholder="Enter your Email"
-              className="w-1/2 p-2 border rounded"
-              value={formData.email}
-              onChange={handleChange}
-              required
-              disabled
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block font-semibold">Name of Child</label>
+            <label className="block font-semibold">First Name</label>
             <input
               type="text"
-              name="full_name"
-              placeholder="First Name, Middle Name, Last Name(ex: Juan Santos Cruz)"
+              name="first_name"
+              placeholder="Enter your First Name"
               className="w-full p-2 border rounded"
-              value={formData.full_name}
+              value={formData.first_name}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
           </div>
+
+            <div>
+              <label className="block font-semibold">Middle Name</label>
+              <input
+                type="text"
+                name="middle_name"
+                placeholder="Enter your Middle Name"
+                className="w-full p-2 border rounded"
+                value={formData.middle_name}
+                onChange={handleChange}
+                disabled={isFormDisabled}
+              />
+            </div>
+
+              <div>
+                <label className="block font-semibold">Last Name</label>
+                <input
+                  type="text"
+                  name="last_name"
+                  placeholder="Enter your Last Name"
+                  className="w-full p-2 border rounded"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+              </div>
+            </div>
+
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -315,24 +455,7 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
                 value={formData.age}
                 readOnly
               />
-            </div>
-
-            <div>
-              <label className="block font-semibold">Address</label>
-              <input
-                type="text"
-                name="address"
-                placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
-                className="w-full p-2 border rounded"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                disabled={isFormDisabled}
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block font-semibold">First Language</label>
               <input
@@ -360,34 +483,169 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               />
             </div>
           </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold">Address</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="street"
+                  placeholder="Street Name"
+                  className="w-full p-2 border rounded"
+                  value={formData.street}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+                <input
+                  type="text"
+                  name="barangay"
+                  placeholder="Barangay"
+                  className="w-full p-2 border rounded"
+                  value={formData.barangay}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+                <input
+                  type="text"
+                  name="city"
+                  placeholder="City / Municipality"
+                  className="w-full p-2 border rounded"
+                  value={formData.city}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+                <input
+                  type="text"
+                  name="province"
+                  placeholder="Province"
+                  className="w-full p-2 border rounded"
+                  value={formData.province}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+                <input
+                  type="text"
+                  name="postal"
+                  placeholder="Postal / ZIP Code"
+                  className="w-full p-2 border rounded"
+                  value={formData.postal}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+              </div>
+            </div>
+          </div>
 
           <div className="text-xl font-extrabold text-black-500">MOTHER:</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block font-semibold mb-1">First Name</label>
+            <input
+              type="text"
+              name="motherFirstName"
+              className="w-full p-2 border rounded mb-2"
+              placeholder="Enter your First Name"
+              value={formData.motherFirstName}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
+            <label className="block font-semibold mb-1">Middle Name</label>
+            <input
+              type="text"
+              name="motherMiddleName"
+              className="w-full p-2 border rounded mb-2"
+              placeholder="Enter your Middle Name"
+              value={formData.motherMiddleName}
+              onChange={handleChange}
+              disabled={isFormDisabled}
+            />
+            <label className="block font-semibold mb-1">Last Name</label>
+            <input
+              type="text"
+              name="motherLastName"
+              className="w-full p-2 border rounded"
+              placeholder="Enter your Last Name"
+              value={formData.motherLastName}
+              onChange={handleChange}
+              required
+              disabled={isFormDisabled}
+            />
+          </div>
+
+          
             <div>
-            <label className="block font-semibold">Name of Mother</label>
-            <input
-              type="text"
-              name="motherName"
-              className="w-full p-2 border rounded"
-              placeholder="First Name, Middle Name, Last Name(ex: Michelle Santos Cruz)"
-              value={formData.motherName}
-              onChange={handleChange}
-              required
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+              onClick={fillAddressMother}
               disabled={isFormDisabled}
-            />
+            >
+              Same Address
+            </button>
+              <label className="block font-semibold mb-1">Address</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input
+                  type="text"
+                  name="motherStreet"
+                  className="w-full p-2 border rounded"
+                  placeholder="Street Name"
+                  value={formData.motherStreet}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+
+                <input
+                  type="text"
+                  name="motherBarangay"
+                  className="w-full p-2 border rounded"
+                  placeholder="Barangay"
+                  value={formData.motherBarangay}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+
+                <input
+                  type="text"
+                  name="motherCity"
+                  className="w-full p-2 border rounded"
+                  placeholder="City / Municipality"
+                  value={formData.motherCity}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+
+                <input
+                  type="text"
+                  name="motherProvince"
+                  className="w-full p-2 border rounded"
+                  placeholder="Province"
+                  value={formData.motherProvince}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
+
+                <input
+                  type="text"
+                  name="motherZip"
+                  className="w-full p-2 border rounded"
+                  placeholder="Postal / ZIP Code"
+                  value={formData.motherZip}
+                  onChange={handleChange}
+                  required
+                  disabled={isFormDisabled}
+                />
               </div>
-              <div>
-              <label className="block font-semibold">Address</label>
-            <input
-              type="text"
-              name="motherAddress"
-              className="w-full p-2 border rounded"
-              placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
-              value={formData.motherAddress}
-              onChange={handleChange}
-              required
-              disabled={isFormDisabled}
-            />
             </div>
             <div>
             <label className="block font-semibold">Mother Contact</label>
@@ -401,7 +659,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               required
               disabled={isFormDisabled}
             />
-            </div>
             <div>
             <label className="block font-semibold">Work</label>
             <input
@@ -415,36 +672,108 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               disabled={isFormDisabled}
             />
             </div>
-          </div>
 
+            </div>
+          </div>
           <div className="text-xl font-extrabold text-black-500">FATHER:</div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-            <label className="block font-semibold">Name of Father</label>
+          <div>
+            <label className="block font-semibold mb-1">First Name</label>
             <input
               type="text"
-              name="fatherName"
-              className="w-full p-2 border rounded"
-              placeholder="First Name, Middle Name, Last Name(ex: Miguel Santos Cruz)"
-              value={formData.fatherName}
+              name="fatherFirstName"
+              className="w-full p-2 border rounded mb-2"
+              placeholder="Enter your First Name"
+              value={formData.fatherFirstName}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
-            </div>
-            <div>
-            <label className="block font-semibold">Address</label>
+            <label className="block font-semibold mb-1">Middle Name</label>
             <input
               type="text"
-              name="fatherAddress"
+              name="fatherMiddleName"
+              className="w-full p-2 border rounded mb-2"
+              placeholder="Enter your Middle Name"
+              value={formData.fatherMiddleName}
+              onChange={handleChange}
+              disabled={isFormDisabled}
+            />
+            <label className="block font-semibold mb-1">Last Name</label>
+            <input
+              type="text"
+              name="fatherLastName"
               className="w-full p-2 border rounded"
-              placeholder="e.g. 123 Main St, Barangay XYZ, City, Province"
-              value={formData.fatherAddress}
+              placeholder="Enter your Last Name"
+              value={formData.fatherLastName}
               onChange={handleChange}
               required
               disabled={isFormDisabled}
             />
+          </div>
+            <div>
+            <button
+              type="button"
+              className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+              onClick={fillAddressFather}
+              disabled={isFormDisabled}
+            >
+              Same Address
+            </button>
+            <label className="block font-semibold mb-2">Address</label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                name="fatherStreet"
+                className="w-full p-2 border rounded"
+                placeholder="Street Name"
+                value={formData.fatherStreet}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="fatherBarangay"
+                className="w-full p-2 border rounded"
+                placeholder="Barangay"
+                value={formData.fatherBarangay}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="fatherCity"
+                className="w-full p-2 border rounded"
+                placeholder="City / Municipality"
+                value={formData.fatherCity}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="fatherProvince"
+                className="w-full p-2 border rounded"
+                placeholder="Province"
+                value={formData.fatherProvince}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="fatherZip"
+                className="w-full p-2 border rounded"
+                placeholder="Postal / ZIP Code"
+                value={formData.fatherZip}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
             </div>
+          </div>
             <div>
             <label className="block font-semibold">Father Contact</label>
             <input
@@ -457,7 +786,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               required
               disabled={isFormDisabled}
             />
-            </div>
             <div>
             <label className="block font-semibold">Work</label>
             <input
@@ -471,8 +799,8 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               disabled={isFormDisabled}
             />
             </div>
+            </div>
           </div>
-
           <div className="text-xl font-extrabold text-black-500">GUARDIAN:</div>
           <div className="flex space-x-4">
             <button
@@ -492,17 +820,42 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               Same as Mother
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              type="text"
-              name="guardian"
-              className="w-full p-2 border rounded"
-              placeholder="First Name, Middle Name, Last Name(ex: Juan Santos Cruz)"
-              value={formData.guardian}
-              onChange={handleChange}
-              required
-              disabled={isFormDisabled}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                name="guardianFirstName"
+                className="w-full p-2 border rounded"
+                placeholder="First Name"
+                value={formData.guardianFirstName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="guardianMiddleName"
+                className="w-full p-2 border rounded"
+                placeholder="Middle Name"
+                value={formData.guardianMiddleName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="guardianLastName"
+                className="w-full p-2 border rounded"
+                placeholder="Last Name"
+                value={formData.guardianLastName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+            </div>
+
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="text"
               name="guardianContact"
@@ -513,17 +866,44 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               required
               disabled={isFormDisabled}
             />
-            <input
-              type="text"
-              name="guardianRelationship"
-              className="w-full p-2 border rounded"
-              placeholder="Relationship to Student (e.g., Aunt, Uncle, Grandparent)"
-              value={formData.guardianRelationship}
-              onChange={handleChange}
-              required
-              disabled={isFormDisabled}
-            />
+            </div>
+          <div className="mb-4">
+            <label className="block font-semibold mb-1">Guardian Relationship</label>
 
+            {isCustomRelationship ? (
+              <input
+                type="text"
+                name="guardianRelationship"
+                className="w-full p-2 border rounded"
+                placeholder="Enter relationship (e.g., Cousin, Neighbor)"
+                value={formData.guardianRelationship}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+            ) : (
+              <select
+                name="guardianRelationship"
+                className="w-full p-2 border rounded"
+                value={formData.guardianRelationship}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              >
+                <option value="" disabled>Select relationship</option>
+                {relationshipOptions.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            )}
+
+            <button
+              type="button"
+              className="text-blue-500 text-sm mt-1 underline"
+              onClick={() => setIsCustomRelationship(!isCustomRelationship)}
+            >
+              {isCustomRelationship ? "Choose from list" : "Enter custom relationship"}
+            </button>
           </div>
 
           <div className="text-xl font-extrabold text-black-500">IN CASE OF EMERGENCY:</div>
@@ -545,17 +925,41 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               Same as Mother
             </button>
           </div>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                name="emergencyFirstName"
+                className="w-full p-2 border rounded"
+                placeholder="Emergency First Name"
+                value={formData.emergencyFirstName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="emergencyMiddleName"
+                className="w-full p-2 border rounded"
+                placeholder="Emergency Middle Name"
+                value={formData.emergencyMiddleName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+              <input
+                type="text"
+                name="emergencyLastName"
+                className="w-full p-2 border rounded"
+                placeholder="Emergency Last Name"
+                value={formData.emergencyLastName}
+                onChange={handleChange}
+                required
+                disabled={isFormDisabled}
+              />
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              type="text"
-              name="emergencyName"
-              className="w-full p-2 border rounded"
-              placeholder="Emergency First Name, Middle Name, Last Name(ex: Juan Santos Cruz) Name"
-              value={formData.emergencyName}
-              onChange={handleChange}
-              required
-              disabled={isFormDisabled}
-            />
             <input
               type="text"
               name="emergencyContact"
@@ -565,16 +969,6 @@ const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
               onChange={handleChange}
               required
               disabled={isFormDisabled}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input
-              type="date"
-              name="date"
-              className="w-full p-2 border rounded bg-gray-100"
-              value={formData.date}
-              readOnly
             />
             </div>
 

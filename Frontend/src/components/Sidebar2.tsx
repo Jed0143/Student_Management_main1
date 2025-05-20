@@ -65,7 +65,7 @@ const Sidebar2 = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const menuItems = [
-    { name: "List of Accepted Student", href: "/ADashboard" },
+    { name: "Student List", href: "/Students_List" },
     { name: "Attendance", href: "/AAttendance" },
     { name: "List of Modules", href: "/List_Modules" },
   ];

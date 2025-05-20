@@ -1,7 +1,8 @@
 {
   "/page": "app/page.js",
   "/Student_Profile/page": "app/Student_Profile/page.js",
-  "/AboutUs/page": "app/AboutUs/page.js",
+  "/Enrollees/page": "app/Enrollees/page.js",
+  "/SStudent_List/page": "app/SStudent_List/page.js",
   "/Pre_Enrollment/page": "app/Pre_Enrollment/page.js",
-  "/AAttendance/page": "app/AAttendance/page.js"
+  "/Student_Attendance_Record/page": "app/Student_Attendance_Record/page.js"
 }

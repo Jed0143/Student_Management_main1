@@ -65,7 +65,8 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: "Enrollees", href: "/Enrollees" },
-    { name: "Student List", href: "/Student_List" },
+    { name: "List of Accepted Student", href: "/Schedule" },
+    { name: "Student List", href: "/SStudent_List" },
     { name: "Admin/Teacher", href: "/Teacher_List" },
   ];
 

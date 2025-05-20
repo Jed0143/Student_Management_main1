@@ -11,6 +11,13 @@ if (!isset($data->id)) {
 }
 
 $id = $data->id;
+$schoolYearStart = isset($data->school_year_start) ? $data->school_year_start : null;
+$schoolYearEnd = isset($data->school_year_end) ? $data->school_year_end : null;
+
+if (!$schoolYearStart || !$schoolYearEnd) {
+    echo json_encode(["message" => "School year start and end are required."]);
+    exit;
+}
 
 $conn = new mysqli("localhost", "root", "", "student_management");
 
@@ -45,18 +52,18 @@ if ($currentStatus !== 'pending') {
 }
 $checkStmt->close();
 
-// Step 2: Update status to 'accepted'
-$updateStmt = $conn->prepare("UPDATE pre_enrollment SET status = ? WHERE id = ?");
+// Step 2: Update status and school year in pre_enrollment
+$updateStmt = $conn->prepare("UPDATE pre_enrollment SET status = ?, school_year_start = ?, school_year_end = ? WHERE id = ?");
 $newStatus = 'accepted';
-$updateStmt->bind_param("si", $newStatus, $id);
+$updateStmt->bind_param("sssi", $newStatus, $schoolYearStart, $schoolYearEnd, $id);
 
 if ($updateStmt->execute()) {
-    // Step 3: Insert into enrollees table
-    $insertStmt = $conn->prepare("INSERT INTO enrollees (enrollee_id, full_name, email) VALUES (?, ?, ?)");
-    $insertStmt->bind_param("iss", $id, $fullName, $email);
+    // Step 3: Insert into enrollees table (with school year)
+    $insertStmt = $conn->prepare("INSERT INTO enrollees (enrollee_id, full_name, email, school_year_start, school_year_end) VALUES (?, ?, ?, ?, ?)");
+    $insertStmt->bind_param("issss", $id, $fullName, $email, $schoolYearStart, $schoolYearEnd);
 
     if ($insertStmt->execute()) {
-        // Step 4: Check if email already exists in admin_users
+        // Step 4: Check if email already exists in users
         $checkUserStmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $checkUserStmt->bind_param("s", $email);
         $checkUserStmt->execute();
@@ -65,8 +72,7 @@ if ($updateStmt->execute()) {
         if ($userResult->num_rows > 0) {
             echo json_encode(["message" => "Enrollee added, but user already exists in users."]);
         } else {
-
-            // Step 5: Insert users
+            // Step 5: Insert into users
             $defaultPassword = password_hash("student123", PASSWORD_DEFAULT);
             $role = 'parent';
 
@@ -74,9 +80,9 @@ if ($updateStmt->execute()) {
             $userStmt->bind_param("ssss", $fullName, $email, $defaultPassword, $role);
 
             if ($userStmt->execute()) {
-                echo json_encode(["message" => "Student accepted and added to enrollees and admin_users."]);
+                echo json_encode(["message" => "Student accepted and added to enrollees and users."]);
             } else {
-                echo json_encode(["message" => "Enrollee added, but failed to insert into admin_users: " . $userStmt->error]);
+                echo json_encode(["message" => "Enrollee added, but failed to insert into users: " . $userStmt->error]);
             }
 
             $userStmt->close();

@@ -37,16 +37,22 @@ if (!$data) {
     exit;
 }
 
-$name = $data['full_name'] ?? '';
+$firstName = trim($data['first_name'] ?? '');
+$middleName = trim($data['middle_name'] ?? '');
+$lastName = trim($data['last_name'] ?? '');
 $email = $data['email'] ?? '';
 $passwordRaw = $data['password'] ?? '';
 $role = $data['role'] ?? 'admin';
 
 // Check if all required fields are present
-if (!$name || !$email || !$passwordRaw) {
-    echo json_encode(["status" => "error", "message" => "Missing required fields (Full Name, Email, Password)."]);
+if (!$firstName || !$lastName || !$email || !$passwordRaw) {
+    echo json_encode(["status" => "error", "message" => "Missing required fields (First Name, Last Name, Email, Password)."]);
     exit;
 }
+
+// Combine full name
+$fullName = $firstName . ($middleName ? " $middleName" : "") . " $lastName";
+$fullName = trim($fullName);
 
 // Hash the password
 $hashedPassword = password_hash($passwordRaw, PASSWORD_BCRYPT);
@@ -59,7 +65,7 @@ if (!$stmt) {
     exit;
 }
 
-$stmt->bind_param("ssss", $name, $email, $hashedPassword, $role); // Using hashed password
+$stmt->bind_param("ssss", $fullName, $email, $hashedPassword, $role); // Using hashed password
 
 // Execute the query
 if (!$stmt->execute()) {

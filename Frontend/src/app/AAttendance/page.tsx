@@ -253,7 +253,7 @@ const AttendanceManager = () => {
                       handleViewAttendance(student.full_name);
                     }}
                   >
-                    View
+                    View Attendance Record
                   </button>
                 </td>
               </tr>

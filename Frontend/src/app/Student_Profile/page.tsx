@@ -142,7 +142,6 @@ const My_Profile = () => {
                     <p><strong>Gender:</strong> {viewData.gender}</p>
                     <p><strong>Birthdate:</strong> {viewData.birthday}</p>
                     <p><strong>Age:</strong> {viewData.age}</p>
-                    <p><strong>Date Registered:</strong> {viewData.date}</p>
                     <p><strong>Address:</strong> {viewData.address}</p>
                   </div>
                   <div className="space-y-1">
@@ -153,12 +152,10 @@ const My_Profile = () => {
                 <hr className="my-4 border-gray-300" />
                 <div className="space-y-1">
                   <p><strong>Mother's Name:</strong> {viewData.mother_name}</p>
-                  <p><strong>Father's Name:</strong> {viewData.father_name}</p>
-                  <p><strong>Emergency Name:</strong> {viewData.emergency_name}</p>
-                  <p><strong>Emergency Contact:</strong> {viewData.emergency_contact}</p>
                   <p><strong>Mother's Work:</strong> {viewData.mother_work}</p>
-                  <p><strong>Father's Work:</strong> {viewData.father_work}</p>
                   <p><strong>Mother's Contact:</strong> {viewData.mother_contact}</p>
+                  <p><strong>Father's Name:</strong> {viewData.father_name}</p>
+                  <p><strong>Father's Work:</strong> {viewData.father_work}</p>
                   <p><strong>Father's Contact:</strong> {viewData.father_contact}</p>
                 </div>
                 <hr className="my-4 border-gray-300" />
@@ -167,6 +164,13 @@ const My_Profile = () => {
                     <p><strong>Guardian Name:</strong> {viewData.guardian}</p>
                     <p><strong>Guardian Contact:</strong> {viewData.guardian_contact}</p>
                     <p><strong>Guardian Relationship:</strong> {viewData.guardian_relationship}</p>
+                  </div>
+                </div>
+                                <hr className="my-4 border-gray-300" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                  <p><strong>Emergency Name:</strong> {viewData.emergency_name}</p>
+                  <p><strong>Emergency Contact:</strong> {viewData.emergency_contact}</p>
                   </div>
                 </div>
                 <hr className="my-4 border-gray-300" />
@@ -189,212 +193,209 @@ const My_Profile = () => {
         </Dialog>
 
         {/* Edit Modal */}
-        <Dialog
-          open={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-        >
-<Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-auto relative">
-  <Dialog.Title className="text-2xl font-semibold text-yellow-700 mb-6">
-    Edit Student Details
-  </Dialog.Title>
+<Dialog
+  open={isEditModalOpen}
+  onClose={() => setIsEditModalOpen(false)}
+  className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+>
+  <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-3xl max-h-[90vh] overflow-auto relative">
+    <Dialog.Title className="text-2xl font-semibold text-yellow-700 mb-6">
+      Edit Student Details
+    </Dialog.Title>
 
-  {editData && (
-    <form onSubmit={handleEditSubmit} className="space-y-4 text-sm text-gray-700">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label>Full Name:</label>
-          <input
-            type="text"
-            value={editData.full_name}
-            onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+    {editData && (
+      <form onSubmit={handleEditSubmit} className="space-y-4 text-sm text-gray-700">
+        {/* Personal Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label>Full Name:</label>
+            <input
+              type="text"
+              value={editData.full_name} disabled
+              onChange={(e) => setEditData({ ...editData, full_name: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
 
-          <label>Gender:</label>
-          <input
-            type="text"
-            value={editData.gender}
-            onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+            <label>Gender:</label>
+            <input
+              type="text"
+              value={editData.gender} disabled
+              onChange={(e) => setEditData({ ...editData, gender: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
 
-          <label>Birthdate:</label>
-          <input
-            type="date"
-            value={editData.birthday}
-            onChange={(e) => setEditData({ ...editData, birthday: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+            <label>Birthdate:</label>
+            <input
+              type="date"
+              value={editData.birthday} disabled
+              onChange={(e) => setEditData({ ...editData, birthday: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
 
-          <label>Age:</label>
-          <input
-            type="number"
-            value={editData.age}
-            onChange={(e) => setEditData({ ...editData, age: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+            <label>Age:</label>
+            <input
+              type="number"
+              value={editData.age} disabled
+              onChange={(e) => setEditData({ ...editData, age: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
 
-          <label>Date Registered:</label>
-          <input
-            type="date"
-            value={editData.date}
-            onChange={(e) => setEditData({ ...editData, date: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+          <div className="space-y-2">
+            <label>First Language:</label>
+            <input
+              type="text"
+              value={editData.first_language}
+              onChange={(e) => setEditData({ ...editData, first_language: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
 
-          <label>Address:</label>
-          <input
-            type="text"
-            value={editData.address}
-            onChange={(e) => setEditData({ ...editData, address: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+            <label>Second Language:</label>
+            <input
+              type="text"
+              value={editData.second_language}
+              onChange={(e) => setEditData({ ...editData, second_language: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Address:</label>
+            <input
+              type="text"
+              value={editData.address}
+              onChange={(e) => setEditData({ ...editData, address: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label>First Language:</label>
-          <input
-            type="text"
-            value={editData.first_language}
-            onChange={(e) => setEditData({ ...editData, first_language: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+        <hr className="my-4" />
 
-          <label>Second Language:</label>
-          <input
-            type="text"
-            value={editData.second_language}
-            onChange={(e) => setEditData({ ...editData, second_language: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+        {/* Parent Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label>Mother's Name:</label>
+            <input
+              type="text"
+              value={editData.mother_name} disabled
+              onChange={(e) => setEditData({ ...editData, mother_name: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Mother's Work:</label>
+            <input
+              type="text"
+              value={editData.mother_work}
+              onChange={(e) => setEditData({ ...editData, mother_work: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Mother's Contact:</label>
+            <input
+              type="text"
+              value={editData.mother_contact}
+              onChange={(e) => setEditData({ ...editData, mother_contact: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label>Father's Name:</label>
+            <input
+              type="text"
+              value={editData.father_name} disabled
+              onChange={(e) => setEditData({ ...editData, father_name: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Father's Work:</label>
+            <input
+              type="text"
+              value={editData.father_work}
+              onChange={(e) => setEditData({ ...editData, father_work: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Father's Contact:</label>
+            <input
+              type="text"
+              value={editData.father_contact}
+              onChange={(e) => setEditData({ ...editData, father_contact: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
         </div>
-      </div>
 
-      <hr className="my-4" />
+        <hr className="my-4" />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label>Mother's Name:</label>
-          <input
-            type="text"
-            value={editData.mother_name}
-            onChange={(e) => setEditData({ ...editData, mother_name: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
-          <label>Mother's Work:</label>
-          <input
-            type="text"
-            value={editData.mother_work}
-            onChange={(e) => setEditData({ ...editData, mother_work: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
-          <label>Mother's Contact:</label>
-          <input
-            type="text"
-            value={editData.mother_contact}
-            onChange={(e) => setEditData({ ...editData, mother_contact: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label>Father's Name:</label>
-          <input
-            type="text"
-            value={editData.father_name}
-            onChange={(e) => setEditData({ ...editData, father_name: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
-          <label>Father's Work:</label>
-          <input
-            type="text"
-            value={editData.father_work}
-            onChange={(e) => setEditData({ ...editData, father_work: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
-          <label>Father's Contact:</label>
-          <input
-            type="text"
-            value={editData.father_contact}
-            onChange={(e) => setEditData({ ...editData, father_contact: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-        </div>
-      </div>
-
-      <hr className="my-4" />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <label>Guardian Name:</label>
-          <input
-            type="text"
-            value={editData.guardian}
-            onChange={(e) => setEditData({ ...editData, guardian: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
+        {/* Guardian Information */}
+        <div>
+          <label>Guardian:</label>
+            <input
+              type="text"
+              value={editData.guardian}
+              onChange={(e) => setEditData({ ...editData, guardian: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
           <label>Guardian Contact:</label>
-          <input
-            type="text"
-            value={editData.guardian_contact}
-            onChange={(e) => setEditData({ ...editData, guardian_contact: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
+            <input
+              type="number"
+              value={editData.guardian_contact}
+              onChange={(e) => setEditData({ ...editData, guardian_contact: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
           <label>Guardian Relationship:</label>
-          <input
-            type="text"
-            value={editData.guardian_relationship}
-            onChange={(e) => setEditData({ ...editData, guardian_relationship: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+            <input
+              type="text"
+              value={editData.guardian_relationship}
+                onChange={(e) => setEditData({ ...editData, guardian_relationship: e.target.value })}
+                className="w-full border px-2 py-1 rounded"
+              />
+            </div>
+
+        <hr className="my-4" />
+
+        {/* Emergency Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label>Emergency Name:</label>
+            <input
+              type="text"
+              value={editData.emergency_name}
+              onChange={(e) => setEditData({ ...editData, emergency_name: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+
+            <label>Emergency Contact:</label>
+            <input
+              type="text"
+              value={editData.emergency_contact}
+              onChange={(e) => setEditData({ ...editData, emergency_contact: e.target.value })}
+              className="w-full border px-2 py-1 rounded"
+            />
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <label>Emergency Name:</label>
-          <input
-            type="text"
-            value={editData.emergency_name}
-            onChange={(e) => setEditData({ ...editData, emergency_name: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
-
-          <label>Emergency Contact:</label>
-          <input
-            type="text"
-            value={editData.emergency_contact}
-            onChange={(e) => setEditData({ ...editData, emergency_contact: e.target.value })}
-            className="w-full border px-2 py-1 rounded"
-          />
+        {/* Save & Cancel Buttons */}
+        <div className="flex justify-end space-x-2 mt-6">
+          <button
+            type="button"
+            onClick={() => setIsEditModalOpen(false)}
+            className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700"
+          >
+            Save Changes
+          </button>
         </div>
-      </div>
+      </form>
+    )}
+  </Dialog.Panel>
+</Dialog>
 
-      <div className="flex justify-end space-x-2 mt-6">
-        <button
-          type="button"
-          onClick={() => setIsEditModalOpen(false)}
-          className="px-3 py-1 bg-gray-400 text-white rounded hover:bg-gray-500"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="px-3 py-1 bg-yellow-600 text-white rounded hover:bg-yellow-700"
-        >
-          Save Changes
-        </button>
-      </div>
-    </form>
-  )}
-</Dialog.Panel>
-
-        </Dialog>
       </div>
     </div>
   );
