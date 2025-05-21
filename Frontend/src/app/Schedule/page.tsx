@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import StudentSidebar from "@/components/Sidebar";
+import StudentSidebar from "../Sidebar/Sidebar";
 import {
   Dialog,
   DialogActions,

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "../Sidebar/Sidebar";
 import { Dialog, TextField, Snackbar } from "@mui/material";
 
 interface Teacher {

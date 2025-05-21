@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Sidebar2 from "@/components/Sidebar2"; // Import sidebar
+import Sidebar2 from "../Sidebar2/Sidebar2"; // Import sidebar
 
 interface Module {
   id: number;
@@ -200,9 +200,8 @@ const ModulesList: React.FC = () => {
   };
 
   return (
-    <div className="flex">
-      <Sidebar2 children={undefined} />
-
+    <div className="flex-col">
+      <Sidebar2>
       <div className="flex-1 p-8 transition-all duration-300">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800">Modules List</h1>
@@ -382,6 +381,7 @@ const ModulesList: React.FC = () => {
           </div>
         </div>
       </div>
+      </Sidebar2>
     </div>
   );
 };

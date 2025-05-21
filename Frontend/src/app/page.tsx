@@ -1,10 +1,5 @@
-import Homepage from "@/components/Homepage";
-const Page = () => {
-  return (
-    <div>
-      <Homepage/>
-    </div>
-  )
-}
+import Homepage from "./Homepage/Homepage";
 
-export default Page
+export default function Page() {
+  return <Homepage />;
+}

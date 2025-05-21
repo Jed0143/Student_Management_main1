@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import StudentSidebar from "@/components/studentsidebar";
+import StudentSidebar from "../studentsidebar/studentsidebar";
 
 const AboutUs: React.FC = () => {
   return (

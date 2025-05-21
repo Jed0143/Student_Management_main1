@@ -9,7 +9,7 @@ import {
   DialogActions,
   TextField
 } from '@mui/material';
-import Sidebar from "@/components/Sidebar";
+import Sidebar from "../Sidebar/Sidebar";
 
 interface Student {
   id: number;
@@ -136,14 +136,14 @@ const EnrolleesList: React.FC = () => {
         <p><strong>Guardian:</strong> {studentDetails.guardian}</p>
         <p><strong>Guardian Contact:</strong> {studentDetails.guardian_contact}</p>
         <p><strong>Guardian Relationship:</strong> {studentDetails.guardian_relationship}</p>
-        <p><strong>Mother's Name:</strong> {studentDetails.mother_name}</p>
-        <p><strong>Mother's Address:</strong> {studentDetails.mother_address}</p>
-        <p><strong>Mother's Work:</strong> {studentDetails.mother_work}</p>
-        <p><strong>Mother's Contact:</strong> {studentDetails.mother_contact}</p>
-        <p><strong>Father's Name:</strong> {studentDetails.father_name}</p>
-        <p><strong>Father's Address:</strong> {studentDetails.father_address}</p>
-        <p><strong>Father's Work:</strong> {studentDetails.father_work}</p>
-        <p><strong>Father's Contact:</strong> {studentDetails.father_contact}</p>
+        <p><strong>Mother Name:</strong> {studentDetails.mother_name}</p>
+        <p><strong>Mother Address:</strong> {studentDetails.mother_address}</p>
+        <p><strong>Mother Work:</strong> {studentDetails.mother_work}</p>
+        <p><strong>Mother Contact:</strong> {studentDetails.mother_contact}</p>
+        <p><strong>Father Name:</strong> {studentDetails.father_name}</p>
+        <p><strong>Father Address:</strong> {studentDetails.father_address}</p>
+        <p><strong>Father Work:</strong> {studentDetails.father_work}</p>
+        <p><strong>Father Contact:</strong> {studentDetails.father_contact}</p>
         <p><strong>Emergency Name:</strong> {studentDetails.emergency_name}</p>
         <p><strong>Emergency Contact:</strong> {studentDetails.emergency_contact}</p>
         <p><strong>Address:</strong> {studentDetails.address}</p>

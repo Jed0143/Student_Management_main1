@@ -1,8 +1,15 @@
 {
-  "/page": "app/page.js",
-  "/Student_Profile/page": "app/Student_Profile/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/AboutUs/page": "app/AboutUs/page.js",
+  "/AAttendance/page": "app/AAttendance/page.js",
   "/Enrollees/page": "app/Enrollees/page.js",
-  "/SStudent_List/page": "app/SStudent_List/page.js",
+  "/Schedule/page": "app/Schedule/page.js",
+  "/List_Modules/page": "app/List_Modules/page.js",
+  "/Student_Attendance_Record/page": "app/Student_Attendance_Record/page.js",
   "/Pre_Enrollment/page": "app/Pre_Enrollment/page.js",
-  "/Student_Attendance_Record/page": "app/Student_Attendance_Record/page.js"
+  "/SStudent_List/page": "app/SStudent_List/page.js",
+  "/Student_Profile/page": "app/Student_Profile/page.js",
+  "/Students_List/page": "app/Students_List/page.js",
+  "/Teacher_List/page": "app/Teacher_List/page.js",
+  "/page": "app/page.js"
 }

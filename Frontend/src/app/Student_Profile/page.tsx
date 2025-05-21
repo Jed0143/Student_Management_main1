@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import StudentSidebar from "@/components/studentsidebar";
+import StudentSidebar from "../studentsidebar/studentsidebar";
 import { Dialog } from "@headlessui/react";
+import Image from "next/image";
+
 
 const My_Profile = () => {
   const [students, setStudents] = useState<any[]>([]);
@@ -151,12 +153,12 @@ const My_Profile = () => {
                 </div>
                 <hr className="my-4 border-gray-300" />
                 <div className="space-y-1">
-                  <p><strong>Mother's Name:</strong> {viewData.mother_name}</p>
-                  <p><strong>Mother's Work:</strong> {viewData.mother_work}</p>
-                  <p><strong>Mother's Contact:</strong> {viewData.mother_contact}</p>
-                  <p><strong>Father's Name:</strong> {viewData.father_name}</p>
-                  <p><strong>Father's Work:</strong> {viewData.father_work}</p>
-                  <p><strong>Father's Contact:</strong> {viewData.father_contact}</p>
+                  <p><strong>Mother Name:</strong> {viewData.mother_name}</p>
+                  <p><strong>Mother Work:</strong> {viewData.mother_work}</p>
+                  <p><strong>Mother Contact:</strong> {viewData.mother_contact}</p>
+                  <p><strong>Father Name:</strong> {viewData.father_name}</p>
+                  <p><strong>Father Work:</strong> {viewData.father_work}</p>
+                  <p><strong>Father Contact:</strong> {viewData.father_contact}</p>
                 </div>
                 <hr className="my-4 border-gray-300" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -273,7 +275,7 @@ const My_Profile = () => {
         {/* Parent Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <label>Mother's Name:</label>
+            <label>Mother Name:</label>
             <input
               type="text"
               value={editData.mother_name} disabled
@@ -281,7 +283,7 @@ const My_Profile = () => {
               className="w-full border px-2 py-1 rounded"
             />
 
-            <label>Mother's Work:</label>
+            <label>Mother Work:</label>
             <input
               type="text"
               value={editData.mother_work}
@@ -289,7 +291,7 @@ const My_Profile = () => {
               className="w-full border px-2 py-1 rounded"
             />
 
-            <label>Mother's Contact:</label>
+            <label>Mother Contact:</label>
             <input
               type="text"
               value={editData.mother_contact}
@@ -299,7 +301,7 @@ const My_Profile = () => {
           </div>
 
           <div className="space-y-2">
-            <label>Father's Name:</label>
+            <label>Father Name:</label>
             <input
               type="text"
               value={editData.father_name} disabled
@@ -307,7 +309,7 @@ const My_Profile = () => {
               className="w-full border px-2 py-1 rounded"
             />
 
-            <label>Father's Work:</label>
+            <label>Father Work:</label>
             <input
               type="text"
               value={editData.father_work}
@@ -315,7 +317,7 @@ const My_Profile = () => {
               className="w-full border px-2 py-1 rounded"
             />
 
-            <label>Father's Contact:</label>
+            <label>Father Contact:</label>
             <input
               type="text"
               value={editData.father_contact}

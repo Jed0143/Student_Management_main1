@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import StudentSidebar from "@/components/studentsidebar";
+import StudentSidebar from "../studentsidebar/studentsidebar";
 import { Dialog } from "@headlessui/react";
 import axios from "axios";  // Add this import
 
@@ -65,8 +65,8 @@ const StudentAttendanceHistory = () => {
   };
 
   return (
-    <div className="flex">
-      <StudentSidebar children={undefined} />
+    <div className="flex-col">
+      <StudentSidebar>
       <div className="flex-1 p-4 overflow-auto">
         <h3 className="text-lg font-bold mt-0 mb-2">Student Attendance History</h3>
         <table className="w-full border">
@@ -145,6 +145,7 @@ const StudentAttendanceHistory = () => {
           </div>
         </Dialog>
       </div>
+      </StudentSidebar>
     </div>
   );
 };

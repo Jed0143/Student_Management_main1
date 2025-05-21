@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import StudentSidebar from "@/components/Sidebar2";
+import StudentSidebar from "../Sidebar2/Sidebar2";
 import { Dialog } from "@headlessui/react";
 
 interface Student {
@@ -143,8 +143,8 @@ const AttendanceManager = () => {
       : students.filter((s) => s.schedule === selectedSchedule);
 
   return (
-    <div className="flex">
-      <StudentSidebar children={undefined} />
+    <div className="flex_col">
+      <StudentSidebar>
       <div className="p-8 max-w-8xl mx-auto w-full">
 
         {error && <div className="text-red-500 mb-4">{error}</div>}
@@ -318,6 +318,7 @@ const AttendanceManager = () => {
           </div>
         </Dialog>
       </div>
+      </StudentSidebar>
     </div>
   );
 };

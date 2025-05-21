@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; // Import useRouter
-import StudentSidebar from "@/components/studentsidebar";
+import StudentSidebar from "../studentsidebar/studentsidebar";
 
 
 

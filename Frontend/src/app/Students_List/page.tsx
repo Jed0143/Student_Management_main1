@@ -1,6 +1,6 @@
 "use client";
 
-import Sidebar from "@/components/Sidebar2";
+import Sidebar from "../Sidebar2/Sidebar2";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Dialog } from "@headlessui/react";
@@ -92,8 +92,8 @@ const Student_List: React.FC = () => {
   });
 
   return (
-    <div className="flex">
-      <Sidebar children={undefined} />
+    <div className="flex-col">
+      <Sidebar>
       <div className="p-4 flex-1">
         <h2 className="text-4xl font-bold mb-4 text-center pt-10">
           List of Students
@@ -225,6 +225,7 @@ const Student_List: React.FC = () => {
           </div>
         </Dialog>
       </div>
+      </Sidebar>
     </div>
   );
 };
